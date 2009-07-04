@@ -1,0 +1,122 @@
+.\" This file is generated automatically by convert.pl from gozilla/manual.in.
+.TH GOZILLA 1 "July 2006" "GNU Project"
+.SH NAME
+gozilla \- force mozilla to display specified source file.
+.SH SYNOPSIS
+\fBgozilla\fP [-b browser][-p][+no] file
+.br
+\fBgozilla\fP [-b browser][-p] -d name
+.br
+.SH DESCRIPTION
+\fBGozilla\fP force mozilla to display specified source
+file as a hypertext. \fBGozilla\fP can be used with other
+browsers like firefox and epiphany.
+.PP
+In advance of using this command, you must execute \fBgtags\fP(1)
+and \fBhtags\fP(1) at the root directory of the source tree
+to make tag files.
+Then you can execute gozilla at anywhere in the source tree.
+.PP
+First form:
+.br
+You can specify source file and the line number optionally.
+.PP
+Second form:
+.br
+You can specify definition name directly. Definition name must exist 
+in \'GTAGS\' tag file.
+.PP
+Some browsers require you to load it before executing \fBgozilla\fP.
+Whether or not \fBgozilla\fP waits for exiting of browser depends
+on browser.
+.SH OPTIONS
+The following options are available:
+.TP
+\fB+no\fP
+line number. It must be a line on which function definition or
+function reference is exist.  If you execute \fBhtags\fP(1)
+with \fB-l\fP option, you can specify any line.
+.TP
+\fB-b\fP \fIbrowser\fP
+browser to use. By default, it is assumed \fBmozilla\fP.
+.TP
+\fB-d\fP \fIname\fP
+print function.
+.TP
+\fB--help\fP
+Show help.
+.TP
+\fB-p\fP
+just print generated target URL.
+.TP
+\fIfile\fP
+path of source file or alias name.
+.TP
+\fB-q\fP, \fB--quiet\fP
+Quiet mode.
+.TP
+\fB-v\fP, \fB--verbose\fP
+Verbose mode.
+.TP
+\fB--version\fP
+Show version number.
+.SH FILES
+.TP
+\'HTML/\'
+hypertext of source tree.
+.TP
+\'GTAGS/\'
+tags file for function definitions.
+.TP
+\'$HOME/.gozillarc\'
+alias file. Please read source code for the detail.
+.SH ENVIRONMENT
+.TP
+\fBGTAGSROOT\fP
+The directory which is the root of source tree.
+.TP
+\fBGTAGSDBPATH\fP
+The directory on which gtags database exist.
+This value is ignored when \fBGTAGSROOT\fP is not defined.
+.TP
+\fBBROWSER\fP
+browser to use. By default, it is assumed mozilla.
+.SH EXAMPLES
+.nf
+	$ gtags
+	$ htags
+	$ global -x main
+	main              82 ctags.c          main(argc, argv)
+	$ mozilla &
+	$ gozilla +82 ctags.c
+.PP
+	$ firefox &
+	$ gozilla -b firefox +82 ctags.c
+.PP
+	$ setenv BROWSER 'epiphany --new-tab'
+	$ epiphany &
+	$ gozilla +82 ctags.c
+.fi
+.SH DIAGNOSTICS
+\fBGozilla\fP exits with a non 0 value if an error occurred, 0 otherwise.
+.SH "SEE ALSO"
+\fBglobal\fP(1),
+\fBgtags\fP(1),
+\fBhtags\fP(1),
+\fBfirefox\fP(1),
+\fBepiphany\fP(1),
+\fBmozilla\fP(1).
+.PP
+GNU GLOBAL source code tag system
+.br
+(http://www.gnu.org/software/global/).
+.SH NOTES
+\fBGozilla\fP means 'Global for mozilla'.
+.SH BUGS
+\fBGozilla\fP can treat not only source file but also normal file,
+directory, HTML file and even URL, because it is omnivorous.
+.SH AUTHORS
+Tama Communications Corporation.
+.SH HISTORY
+The \fBgozilla\fP command appeared in FreeBSD 2.2.2 but did not
+installed by default.

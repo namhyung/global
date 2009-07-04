@@ -1,0 +1,101 @@
+.\" This file is generated automatically by convert.pl from gtags-parser/manual.in.
+.TH GTAGS-PARSER 1 "March 2008" "GNU Project"
+.SH NAME
+gtags\-parser - print cross reference list for gtags.
+.SH SYNOPSIS
+\fBgtags-parser\fP [-bdenqrstvw] \fIfile\fP ...
+.br
+.SH DESCRIPTION
+\fBGtags-parser\fP print cross reference list for \fBgtags\fP(1)
+from the specified C, C++, yacc, java, PHP and Assembly source
+to standard output.
+Each line of output contains the object name,
+the line number which it appears, the file in which it is defined,
+and a line image separated by white-space.
+It's same with the output of \fBctags\fP(1) with \fB-x\fP option.
+.PP
+Depending upon the options provided to \fBgtags-parser\fP,
+objects will consist of object definitions, object references
+and other symbols.
+.PP
+Files whose names end in \'.c\' or \'.h\' are assumed to be C
+source files.
+Files whose names end in \'.c++\' \'.cc\' \'.cpp\'
+\'.cxx\' \'.hxx\' \'.hpp\' \'.C\' \'.H\' are assumed to be C++
+source files.
+Files whose names end in \'.y\' are assumed to be YACC source files.
+Files whose names end in \'.java\' are assumed to be Java source files.
+Files whose names end in \'.php\' \'.php3\' \'.phtml\' are
+assumed to be PHP source files.
+Files whose names end in \'.s\' or \'.S\' are assumed to be
+Assembly source files.
+Other files are searched for C style definitions.
+.PP
+Yacc files each have a special tag. \fByyparse\fP is the start
+of the second section of the yacc file.
+.PP
+This command is the default parser of GLOBAL source code tag system.
+.SH OPTIONS
+The following options are available:
+.TP
+\fB-b\fP, \fB--begin-block\fP
+Force level 1 block to begin when reach the left brace at the first column.
+(C only)
+.TP
+\fB-e\fP, \fB--end-block\fP
+Force level 1 block to end when reach the right brace at the first column.
+(C only)
+.TP
+\fB-n\fP, \fB--no-tags\fP
+Suppress output of tags. It is useful to use with \fB-w\fP option.
+.TP
+\fB-q\fP, \fB--quiet\fP
+Quiet mode.
+.TP
+\fB-r\fP, \fB--reference\fP
+Locate object references instead of object definitions.
+\'GTAGS\' is needed at the current directory.
+(C, C++ and Java source only)
+By default, locate object definitions.
+.TP
+\fB-s\fP, \fB--symbol\fP
+Collect symbols other than object definitions and references.
+By default, locate object definitions.
+.TP
+\fB-v\fP, \fB--verbose\fP
+Verbose mode.
+.TP
+\fB-w\fP, \fB--warning\fP
+Print warning message.
+.TP
+\fB--langmap\fP=map
+Language mapping. Each comma-separated  map  consists of
+the language name, a colon, and a list of file extensions.
+Default mapping is 'c:.c.h,yacc:.y,asm:.s.S,java:.java,cpp:.c++.cc.cpp.cxx.hxx.hpp.C.H,php:.php.php3.phtml'.
+.PP
+The \fB-r\fP and \fB-s\fP options override each other;
+the last one specified determines the method used.
+.SH ENVIRONMENT
+The following environment variables affect the execution of \fBgtags-parser\fP:
+.TP
+\fBGTAGSFORCECPP\fP
+If this variable is set, each file whose suffix is 'h' is treated
+as a C++ source file.
+.SH DIAGNOSTICS
+\fBGtags-parser\fP exits with a non 0 value if an error occurred, 0 otherwise.
+Duplicate objects are not considered errors.
+.SH "SEE ALSO"
+\fBglobal\fP(1),
+\fBgtags\fP(1),
+\fBhtags\fP(1).
+.PP
+GNU GLOBAL source code tag system
+.br
+(http://www.gnu.org/software/global/).
+.SH BUG
+\fBGtags-parser\fP relies on the input being well formed,
+and any syntactical errors will completely confuse it.
+.SH AUTHOR
+Tama Communications Corporation.
+.SH HISTORY
+The \fBgtags-parser\fP(gctags) command appeared in FreeBSD 2.2.2.

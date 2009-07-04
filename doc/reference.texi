@@ -1,0 +1,28 @@
+@c This file is generated automatically by convert.pl from a set of manual.in.
+@menu
+* global::         global - print the locations of specified object.
+* gtags::          gtags - create tag files for global.
+* htags::          htags - generate hypertext from source code.
+* gtags-parser::   gtags-parser - print cross reference list for gtags.
+* gozilla::        gozilla - force mozilla to display specified source file.
+* gtags-cscope::   gtags-cscope - pseudo cscope which implements the line-oriented interface
+@end menu
+
+@node global
+@section global - print the locations of specified object.
+@include global.ref
+@node gtags
+@section gtags - create tag files for global.
+@include gtags.ref
+@node htags
+@section htags - generate hypertext from source code.
+@include htags.ref
+@node gtags-parser
+@section gtags-parser - print cross reference list for gtags.
+@include gtags-parser.ref
+@node gozilla
+@section gozilla - force mozilla to display specified source file.
+@include gozilla.ref
+@node gtags-cscope
+@section gtags-cscope - pseudo cscope which implements the line-oriented interface
+@include gtags-cscope.ref

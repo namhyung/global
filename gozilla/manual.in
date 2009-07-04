@@ -1,0 +1,128 @@
+#
+# Copyright (c) 1996, 1997, 1998, 1999, 2000, 2002, 2006
+#	Tama Communications Corporation
+#
+# This file is part of GNU GLOBAL.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# This file is converted to the following files:
+#       o command source file(for usage and help).
+#       o man format reference manual.
+#       o texinfo format reference manual.
+#
+@HEADER GOZILLA,1,July 2006,GNU Project
+@NAME   gozilla - force mozilla to display specified source file.
+@SYNOPSIS
+	@name{gozilla} [-b browser][-p][+no] file
+	@name{gozilla} [-b browser][-p] -d name
+@DESCRIPTION
+	@name{Gozilla} force mozilla to display specified source
+	file as a hypertext. @name{Gozilla} can be used with other
+	browsers like firefox and epiphany.
+
+	In advance of using this command, you must execute @xref{gtags,1}
+	and @xref{htags,1} at the root directory of the source tree
+	to make tag files.
+	Then you can execute gozilla at anywhere in the source tree.
+
+	First form:@br
+	You can specify source file and the line number optionally.
+
+	Second form:@br
+	You can specify definition name directly. Definition name must exist 
+	in @file{GTAGS} tag file.
+
+	Some browsers require you to load it before executing @name{gozilla}.
+	Whether or not @name{gozilla} waits for exiting of browser depends
+	on browser.
+@OPTIONS
+	The following options are available:
+	@begin_itemize
+	@item{@option{+no}}
+		line number. It must be a line on which function definition or
+		function reference is exist.  If you execute @xref{htags,1}
+		with @option{-l} option, you can specify any line.
+	@item{@option{-b} @arg{browser}}
+		browser to use. By default, it is assumed @name{mozilla}.
+	@item{@option{-d} @arg{name}}
+		print function.
+	@item{@option{--help}}
+		Show help.
+	@item{@option{-p}}
+		just print generated target URL.
+	@item{@arg{file}}
+		path of source file or alias name.
+	@item{@option{-q}, @option{--quiet}}
+		Quiet mode.
+	@item{@option{-v}, @option{--verbose}}
+		Verbose mode.
+	@item{@option{--version}}
+		Show version number.
+	@end_itemize
+@FILES
+	@begin_itemize
+	@item{@file{HTML/}}
+		hypertext of source tree.
+	@item{@file{GTAGS/}}
+		tags file for function definitions.
+	@item{@file{$HOME/.gozillarc}}
+		alias file. Please read source code for the detail.
+	@end_itemize
+@ENVIRONMENT
+	@begin_itemize
+	@item{@var{GTAGSROOT}}
+		The directory which is the root of source tree.
+	@item{@var{GTAGSDBPATH}}
+		The directory on which gtags database exist.
+		This value is ignored when @var{GTAGSROOT} is not defined.
+	@item{@var{BROWSER}}
+		browser to use. By default, it is assumed mozilla.
+	@end_itemize
+@EXAMPLES
+	$ gtags
+	$ htags
+	$ global -x main
+	main              82 ctags.c          main(argc, argv)
+	$ mozilla &
+	$ gozilla +82 ctags.c
+
+	$ firefox &
+	$ gozilla -b firefox +82 ctags.c
+
+	$ setenv BROWSER 'epiphany --new-tab'
+	$ epiphany &
+	$ gozilla +82 ctags.c
+@DIAGNOSTICS
+	@name{Gozilla} exits with a non 0 value if an error occurred, 0 otherwise.
+@SEE ALSO
+	@xref{global,1},
+	@xref{gtags,1},
+	@xref{htags,1},
+	@xref{firefox,1},
+	@xref{epiphany,1},
+	@xref{mozilla,1}.
+
+	GNU GLOBAL source code tag system@br
+	(http://www.gnu.org/software/global/).
+@NOTES
+	@name{Gozilla} means 'Global for mozilla'.
+@BUGS
+	@name{Gozilla} can treat not only source file but also normal file,
+	directory, HTML file and even URL, because it is omnivorous.
+@AUTHORS
+	Tama Communications Corporation.
+@HISTORY
+	The @name{gozilla} command appeared in FreeBSD 2.2.2 but did not
+	installed by default.

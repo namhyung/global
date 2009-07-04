@@ -1,0 +1,191 @@
+#
+# Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005
+#	2007, 2008, 2009 Tama Communications Corporation
+#
+# This file is part of GNU GLOBAL.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# This file is converted to the following files:
+#	o command source file(for usage and help).
+#	o man format reference manual.
+#	o texinfo format reference manual.
+#
+@HEADER	GTAGS,1,January 2009,GNU Project
+@NAME	gtags - create tag files for global.
+@SYNOPSIS
+	@name{gtags} [-ciIOqvw][-f @arg{file}][-n @arg{number}][@arg{dbpath}]
+@DESCRIPTION
+	@name{Gtags} recursively collect the source files under
+	the current directory,
+	pickup symbols and write the cross-reference data into tag files
+	(@file{GTAGS}, @file{GRTAGS}, @file{GSYMS} and @file{GPATH}).
+	You should execute this command at the root of the source tree.
+
+	C, C++, yacc, java, PHP and Assembly source files are supported.
+	Files whose names end in @file{.c} or @file{.h} are assumed to be
+	C source files.
+	Files whose names end in @file{.c++} @file{.cc} @file{.cpp} @file{.cxx}
+	@file{.hxx} @file{.hpp} @file{.C} @file{.H} are assumed to be C++ source files.
+	Files whose names end in @file{.y} are assumed to be YACC source files.
+	Files whose names end in @file{.java} are assumed to be Java source files.
+	Files whose names end in @file{.php} @file{.php3} @file{.phtml} are
+	assumed to be PHP source files.
+	Files whose names end in @file{.s} or @file{.S}
+	are assumed to be Assembly source files.
+	Other files are assumed to be text files.
+@OPTIONS
+	The following options are available:
+	@begin_itemize
+	@item{@option{-c}, @option{--compact}}
+		Make GTAGS in compact format.
+		This option does not influence GRTAGS and GSYMS,
+		because they are always made in compact format.
+	@item{@option{--config}[=@arg{name}]}
+		Show the value of config variable @arg{name}.
+		If @arg{name} is not specified then show whole of config entry.
+	@item{@option{-f}, @option{--file} @arg{file}}
+		Read from @arg{file} a list of file names which should be
+		considered as the candidate of source files.
+		By default, all files under the current directory are
+		considered as the candidate.
+		If @arg{file} is @file{-}, read from standard input.
+		File names must be separated by newline.
+	@item{@option{--gtagsconf} @arg{file}}
+		Load user's configuration from @arg{file}.
+	@item{@option{--gtagslabel} @arg{label}}
+		@arg{label} is used as the label of configuration file.
+		The default is @code{default}.
+	@item{@option{-I}, @option{--idutils}}
+		Make index files for @xref{idutils,1} too.
+	@item{@option{-i}, @option{--incremental}}
+		Update tag files incrementally. You had better use
+		@xref{global,1} with the -u option.
+	@item{@option{-n}, @option{--max-args} @arg{number}}
+		Maximum number of arguments for @xref{gtags-parser,1}.
+		By default, gtags invokes @name{gtags-parser} with arguments
+		as many as possible to decrease the frequency of invoking.
+	@item{@option{-O}, @option{--objdir}}
+		Use objdir as dbpath.
+		If @file{$MAKEOBJDIRPREFIX} directory exists, @name{gtags} creates
+		@file{$MAKEOBJDIRPREFIX/<current directory>} directory and makes
+		tag files in it.
+		If @arg{dbpath} is specified, this options is ignored.
+	@item{@option{-q}, @option{--quiet}}
+		Quiet mode.
+	@item{@option{-v}, @option{--verbose}}
+		Verbose mode.
+	@item{@option{-w}, @option{--warning}}
+		Print warning messages.
+	@item{@arg{dbpath}}
+		The directory in which tag files are generated.
+		The default is the current directory.
+		It is useful when your source directory is on a read only
+		device like CDROM.
+	@end_itemize
+@EXAMPLES
+	$ ls -F
+	Makefile      src/    lib/
+	$ gtags -v
+	$ global -x main
+	main              10 src/main.c  main (argc, argv) {
+@FILES
+	@begin_itemize
+	@item{@file{GTAGS}}
+		Tag file for object definitions.
+	@item{@file{GRTAGS}}
+		Tag file for object references.
+	@item{@file{GSYMS}}
+		Tag file for other symbols.
+	@item{@file{GPATH}}
+		Tag file for path of source files.
+	@item{@file{/etc/gtags.conf}, @file{$HOME/.globalrc}}
+		Configuration file.
+	@end_itemize
+@ENVIRONMENT
+	The following environment variables affect the execution of @name{gtags}:
+	@begin_itemize
+	@item{@var{GTAGSCONF}}
+		If this variable is set, its value is used as the
+		configuration file. The default is @file{$HOME/.globalrc}.
+	@item{@var{GTAGSLABEL}}
+		If this variable is set, its value is used as the label
+		of configuration file. The default is @code{default}.
+	@item{@var{GTAGSCACHE}}
+		If this variable is set, its value is used as the size of
+		B-tree cache. The default is 50000000 (bytes).
+	@item{@var{GTAGSFORCECPP}}
+		If this variable is set, each file whose suffix is 'h' is treated
+		as a C++ source file.
+	@item{@var{MAKEOBJDIRPREFIX}}
+		If this variable is set, @file{$MAKEOBJDIRPREFIX} is used as an object
+		prefix directory. The default is @file{/usr/obj}.
+	@end_itemize
+@CONFIGURATION
+	The following configuration variables affect the execution of @name{gtags}.
+	You can see the default value for each variable with the @option{--config} option.
+	@begin_itemize
+	@item{@code{GTAGS}(string)}
+		If this variable is set, its value is used as the
+		command line of the parser for GTAGS. The default is @file{gtags-parser %s}.
+	@item{@code{GRTAGS}(string)}
+		If this variable is set, its value is used as the
+		command line of the parser for GRTAGS. The default is @file{gtags-parser -r %s}.
+	@item{@code{GSYMS}(string)}
+		If this variable is set, its value is used as the
+		command line of the parser for GSYMS. The default is @file{gtags-parser -s %s}.
+	@item{@code{icase_path}(boolean)}
+		Ignore case distinctions in the path.
+		Suffixes check are affected by this capability.
+	@item{@code{langmap}(comma separated list)}
+		Language mapping. Each comma-separated map consists of
+		the language name, a colon, and a list of file extensions.
+		Default mapping is 'c:.c.h,yacc:.y,asm:.s.S,java:.java,cpp:.c++.cc.cpp.cxx.hxx.hpp.C.H,php:.php.php3.phtml'.
+	@item{@code{skip}(comma separated list)}
+		@name{Gtags} skips files which are listed in this list.
+		As a special exception, @name{gtags} collect values from multiple @code{skip} variables.
+		If the value ends with '/', it assumed as a directory and @name{gtags} skips all files under it.
+		If the value start with '/', it assumed relative path from the root of source directory.
+	@item{@code{suffixes}(comma separated list)}
+		Suffixes of target source file.
+		As a special exception, @name{gtags} collect values from multiple @code{suffixes} variables.
+		This variable is obsoleted. If the langmap variable is defined
+		@name{gtags} no longer refers this.
+	@end_itemize
+@DIAGNOSTICS
+	@name{Gtags} exits with a non 0 value if an error occurred, 0 otherwise.
+@MESSAGE FORMAT
+	Verbose message has important level. The most important level is 0,
+	the second is 1 and so on. All the message has level numbers leading
+	blanks.
+@SEE ALSO
+	@xref{gtags-parser,1},
+	@xref{global,1},
+	@xref{htags,1}.
+
+        GNU GLOBAL source code tag system@br
+        (http://www.gnu.org/software/global/).
+@BUG
+	@file{GTAGS}, @file{GRTAGS} and @file{GSYMS} are very large.
+	In advance of using this command, check the space of your disk.
+
+	Assembly support is far from complete.
+	It extracts only ENTRY() and ALTENTRY() from source file.
+	Probably valid only for FreeBSD and Linux kernel source.
+
+	There is no concurrency control about tag files.
+@AUTHOR
+	Tama Communications Corporation.
+@HISTORY
+	The @name{gtags} command appeared in FreeBSD 2.2.2.
