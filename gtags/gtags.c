@@ -79,6 +79,8 @@ char *gtagslabel;
 int debug;
 const char *config_name;
 const char *file_list;
+const char *dump_target;
+char *single_update;
 
 /*
  * Path filter
@@ -113,6 +115,7 @@ static struct option const long_options[] = {
 	 * is left for compatibility.
 	 */
 	{"compact", no_argument, NULL, 'c'},
+	{"dump", required_argument, NULL, 'd'},
 	{"file", required_argument, NULL, 'f'},
 	{"idutils", no_argument, NULL, 'I'},
 	{"incremental", no_argument, NULL, 'i'},
@@ -136,21 +139,16 @@ static struct option const long_options[] = {
 #define OPT_GTAGSCONF		129
 #define OPT_GTAGSLABEL		130
 #define OPT_PATH		131
+#define OPT_SINGLE_UPDATE	132
 	{"config", optional_argument, NULL, OPT_CONFIG},
 	{"gtagsconf", required_argument, NULL, OPT_GTAGSCONF},
 	{"gtagslabel", required_argument, NULL, OPT_GTAGSLABEL},
 	{"path", required_argument, NULL, OPT_PATH},
+	{"single-update", required_argument, NULL, OPT_SINGLE_UPDATE},
 	{ 0 }
 };
 
 static const char *langmap = DEFAULTLANGMAP;
-
-void
-output(const char *s)
-{
-	fputs(s, stdout);
-	fputc('\n', stdout);
-}
 
 int
 main(int argc, char **argv)
@@ -162,7 +160,7 @@ main(int argc, char **argv)
 	int optchar;
 	int option_index = 0;
 
-	while ((optchar = getopt_long(argc, argv, "cf:iIn:oOqvwse", long_options, &option_index)) != EOF) {
+	while ((optchar = getopt_long(argc, argv, "cd:f:iIn:oOqvwse", long_options, &option_index)) != EOF) {
 		switch (optchar) {
 		case 0:
 			/* already flags set */
@@ -189,8 +187,15 @@ main(int argc, char **argv)
 			else
 				die("Unknown path type.");
 			break;
+		case OPT_SINGLE_UPDATE:
+			iflag++;
+			single_update = optarg;
+			break;
 		case 'c':
 			cflag++;
+			break;
+		case 'd':
+			dump_target = optarg;
 			break;
 		case 'f':
 			file_list = optarg;
@@ -290,6 +295,33 @@ main(int argc, char **argv)
 		convert_close(cv);
 		strbuf_close(ib);
 		exit(0);
+	} else if (dump_target) {
+		/*
+		 * Dump a tag file.
+		 */
+		DBOP *dbop = NULL;
+		const char *dat = 0;
+		int is_gpath = 0;
+
+		if (!test("f", dump_target))
+			die("file '%s' not found.", dump_target);
+		if ((dbop = dbop_open(dump_target, 0, 0, DBOP_RAW)) == NULL)
+			die("file '%s' is not a tag file.", dump_target);
+		/*
+		 * The file which has a NEXTKEY record is GPATH.
+		 */
+		if (dbop_get(dbop, NEXTKEY))
+			is_gpath = 1;
+		for (dat = dbop_first(dbop, NULL, NULL, 0); dat != NULL; dat = dbop_next(dbop)) {
+			const char *flag = is_gpath ? dbop_getflag(dbop) : "";
+
+			if (*flag)
+				printf("%s\t%s\t%s\n", dbop->lastkey, dat, flag);
+			else
+				printf("%s\t%s\n", dbop->lastkey, dat);
+		}
+		dbop_close(dbop);
+		exit(0);
 	} else if (Iflag) {
 		if (!usable("mkid"))
 			die("mkid not found.");
@@ -305,6 +337,23 @@ main(int argc, char **argv)
 			die("'%s' not found.", file_list);
 		else if (!test("r", file_list))
 			die("'%s' is not readable.", file_list);
+	}
+	/*
+	 * Regularize the path name for single updating (--single-update).
+	 */
+	if (single_update) {
+		static char regular_path_name[MAXPATHLEN+1];
+		char *p = single_update;
+		
+		if (!test("f", p))
+			die("'%s' not found.", p);
+		if (p[0] == '/')
+			die("--single-update requires relative path name.");
+		if (!(p[0] == '.' && p[1] == '/')) {
+			snprintf(regular_path_name, MAXPATHLEN, "./%s", p);
+			p = regular_path_name;
+		}
+		single_update = p;
 	}
 	if (!getcwd(cwd, MAXPATHLEN))
 		die("cannot get current directory.");
@@ -475,7 +524,7 @@ incremental(const char *dbpath, const char *root)
 
 	if (vflag) {
 		fprintf(stderr, " Tag found in '%s'.\n", dbpath);
-		fprintf(stderr, " Incremental update.\n");
+		fprintf(stderr, " Incremental updating.\n");
 	}
 	/*
 	 * get modified time of GTAGS.
@@ -496,73 +545,98 @@ incremental(const char *dbpath, const char *root)
 	 */
 	deleteset = idset_open(gpath_nextkey());
 	findset = idset_open(gpath_nextkey());
-	/*
-	 * make add list and delete list for update.
-	 */
-	if (file_list)
-		find_open_filelist(file_list, root);
-	else
-		find_open(NULL);
 	total = 0;
-	while ((path = find_read()) != NULL) {
-		const char *fid;
-		int n_fid = 0;
-		int other = 0;
+	/*
+	 * Make add list and delete list for update.
+	 */
+	if (single_update) {
+		int type;
+		const char *fid = gpath_path2fid(single_update, &type);
+		/*
+		 * The --single-update=file supports only updating.
+		 * If it is new file, this option is ignored, and the processing is
+		 * automatically switched to the normal procedure.
+		 */
+		if (fid == NULL) {
+			if (vflag)
+				fprintf(stderr, " --single-update option ignored, because '%s' is new file.\n", single_update);
+			goto normal_update;
+		}
+		/*
+		 * If type != GPATH_SOURCE then we have nothing to do, and you will see
+		 * a message 'Global databases are up to date.'.
+		 */
+		if (type == GPATH_SOURCE) {
+			strbuf_puts0(addlist, single_update);
+			idset_add(deleteset, atoi(fid));
+			total++;
+		}
+	} else {
+normal_update:
+		if (file_list)
+			find_open_filelist(file_list, root);
+		else
+			find_open(NULL);
+		while ((path = find_read()) != NULL) {
+			const char *fid;
+			int n_fid = 0;
+			int other = 0;
 
-		/* a blank at the head of path means 'NOT SOURCE'. */
-		if (*path == ' ') {
-			if (test("b", ++path))
-				continue;
-			other = 1;
-		}
-		if (stat(path, &statp) < 0)
-			die("stat failed '%s'.", path);
-		fid = gpath_path2fid(path, NULL);
-		if (fid) { 
-			n_fid = atoi(fid);
-			idset_add(findset, n_fid);
-		}
-		if (other) {
-			if (fid == NULL)
-				strbuf_puts0(addlist_other, path);
-		} else {
-			if (fid == NULL) {
-				strbuf_puts0(addlist, path);
-				total++;
-			} else if (gtags_mtime < statp.st_mtime) {
-				strbuf_puts0(addlist, path);
-				total++;
-				idset_add(deleteset, n_fid);
+			/* a blank at the head of path means 'NOT SOURCE'. */
+			if (*path == ' ') {
+				if (test("b", ++path))
+					continue;
+				other = 1;
+			}
+			if (stat(path, &statp) < 0)
+				die("stat failed '%s'.", path);
+			fid = gpath_path2fid(path, NULL);
+			if (fid) { 
+				n_fid = atoi(fid);
+				idset_add(findset, n_fid);
+			}
+			if (other) {
+				if (fid == NULL)
+					strbuf_puts0(addlist_other, path);
+			} else {
+				if (fid == NULL) {
+					strbuf_puts0(addlist, path);
+					total++;
+				} else if (gtags_mtime < statp.st_mtime) {
+					strbuf_puts0(addlist, path);
+					total++;
+					idset_add(deleteset, n_fid);
+				}
 			}
 		}
-	}
-	find_close();
-	/*
-	 * make delete list.
-	 */
-	limit = gpath_nextkey();
-	for (id = 1; id < limit; id++) {
-		char fid[32];
-		int type;
+		find_close();
+		/*
+		 * make delete list.
+		 */
+		limit = gpath_nextkey();
+		for (id = 1; id < limit; id++) {
+			char fid[32];
+			int type;
 
-		snprintf(fid, sizeof(fid), "%d", id);
-		/*
-		 * This is a hole of GPATH. The hole increases if the deletion
-		 * and the addition are repeated.
-		 */
-		if ((path = gpath_fid2path(fid, &type)) == NULL)
-			continue;
-		/*
-		 * The file which does not exist in the findset is treated
-		 * assuming that it does not exist in the file system.
-		 */
-		if (type == GPATH_OTHER) {
-			if (!idset_contains(findset, id) || !test("f", path) || test("b", path))
-				strbuf_puts0(deletelist, path);
-		} else {
-			if (!idset_contains(findset, id) || !test("f", path)) {
-				strbuf_puts0(deletelist, path);
-				idset_add(deleteset, id);
+			snprintf(fid, sizeof(fid), "%d", id);
+			/*
+			 * This is a hole of GPATH. The hole increases if the deletion
+			 * and the addition are repeated.
+			 */
+			if ((path = gpath_fid2path(fid, &type)) == NULL)
+				continue;
+			/*
+			 * The file which does not exist in the findset is treated
+			 * assuming that it does not exist in the file system.
+			 */
+			if (type == GPATH_OTHER) {
+				if (!idset_contains(findset, id) || !test("f", path) || test("b", path))
+					strbuf_puts0(deletelist, path);
+			} else {
+				if (!idset_contains(findset, id) || !test("f", path)) {
+					strbuf_puts0(deletelist, path);
+					idset_add(deleteset, id);
+				}
 			}
 		}
 	}

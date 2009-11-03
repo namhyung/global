@@ -87,6 +87,7 @@ Masashi YAMAGUCHI	suggestion and patch about how to display path names in gtags.
 Masato Yoshida		bug report and fix method about <NOFRAME> tag.
 Mathieu Virbel		bug report and fix patch about dead symbolic link for gtags(1).
 Motonori Iwamuro	bug report and fix method about strbuf_fgets function.
+Mikolaj Sitarz		suggestion of the --single-update option of gtags(1).
 Michael Tocci		bug report about the C++ parser.
 Oleg Checkulaev		advice about writing code for generic UNIX.
 Oliver Paukstadt	idea about -c (gzipped html) option of htags(1).

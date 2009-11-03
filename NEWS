@@ -20,6 +20,18 @@ ___________________________________
 GNU GLOBAL NEWS - User visible changes.
 At least, you had better search '[INCOMPATIBLE CHANGES]' for each version.
 
+Version 5.7.6 - October 6 2009
+
+[CHANGES]
+New options:
+o gtags: --single-update=file
+  Update tag files for single file. It is considered that the file was updated,
+  and other files were not updated. This option implies the -i option.
+  If the file is new then --single-update is ignored, and the processing is
+  automatically switched to the normal incremental updating.
+o gtags: --dump=tag-files
+  Dump a tag file. Output format is 'key<tab>data'.
+
 Version 5.7.5 - March 14 2009
 
 [CHANGES]

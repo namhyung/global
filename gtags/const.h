@@ -1,6 +1,6 @@
 /* This file is generated automatically by convert.pl from gtags/manual.in. */
 const char *progname = "gtags";
-const char *usage_const = "Usage: gtags [-ciIOqvw][-f file][-n number][dbpath]\n";
+const char *usage_const = "Usage: gtags [-ciIOqvw][-d tag-file][-f file][-n number][dbpath]\n";
 const char *help_const = "Options:\n\
 -c, --compact\n\
        Make GTAGS in compact format.\n\
@@ -9,6 +9,9 @@ const char *help_const = "Options:\n\
 --config[=name]\n\
        Show the value of config variable name.\n\
        If name is not specified then show whole of config entry.\n\
+-d, --dump tag-file\n\
+       Dump a tag file. The output format is 'key<tab>data'.\n\
+       This is for debugging.\n\
 -f, --file file\n\
        Read from file a list of file names which should be\n\
        considered as the candidate of source files.\n\
@@ -36,6 +39,13 @@ const char *help_const = "Options:\n\
        $MAKEOBJDIRPREFIX/<current directory> directory and makes\n\
        tag files in it.\n\
        If dbpath is specified, this options is ignored.\n\
+--single-update file\n\
+       Update tag files for single file.\n\
+       It is considered that file was updated, and other files were not\n\
+       updated.  The file must be relative path name from the current directory.\n\
+       This option implies the -i option.\n\
+       If the file is new then --single-update is ignored,\n\
+       and the processing is automatically switched to the normal incremental updating.\n\
 -q, --quiet\n\
        Quiet mode.\n\
 -v, --verbose\n\

@@ -1,9 +1,9 @@
 .\" This file is generated automatically by convert.pl from gtags/manual.in.
-.TH GTAGS 1 "January 2009" "GNU Project"
+.TH GTAGS 1 "September 2009" "GNU Project"
 .SH NAME
 gtags \- create tag files for global.
 .SH SYNOPSIS
-\fBgtags\fP [-ciIOqvw][-f \fIfile\fP][-n \fInumber\fP][\fIdbpath\fP]
+\fBgtags\fP [-ciIOqvw][-d \fItag-file\fP][-f \fIfile\fP][-n \fInumber\fP][\fIdbpath\fP]
 .br
 .SH DESCRIPTION
 \fBGtags\fP recursively collect the source files under
@@ -35,6 +35,10 @@ because they are always made in compact format.
 \fB--config\fP[=\fIname\fP]
 Show the value of config variable \fIname\fP.
 If \fIname\fP is not specified then show whole of config entry.
+.TP
+\fB-d\fP, \fB--dump\fP \fItag-file\fP
+Dump a tag file. The output format is 'key<tab>data'.
+This is for debugging.
 .TP
 \fB-f\fP, \fB--file\fP \fIfile\fP
 Read from \fIfile\fP a list of file names which should be
@@ -69,6 +73,14 @@ If \'$MAKEOBJDIRPREFIX\' directory exists, \fBgtags\fP creates
 \'$MAKEOBJDIRPREFIX/<current directory>\' directory and makes
 tag files in it.
 If \fIdbpath\fP is specified, this options is ignored.
+.TP
+\fB--single-update\fP \fIfile\fP
+Update tag files for single file.
+It is considered that \fIfile\fP was updated, and other files were not
+updated.  The \fIfile\fP must be relative path name from the current directory.
+This option implies the -i option.
+If the \fIfile\fP is new then \fB--single-update\fP is ignored,
+and the processing is automatically switched to the normal incremental updating.
 .TP
 \fB-q\fP, \fB--quiet\fP
 Quiet mode.

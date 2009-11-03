@@ -22,10 +22,10 @@
 #	o man format reference manual.
 #	o texinfo format reference manual.
 #
-@HEADER	GTAGS,1,January 2009,GNU Project
+@HEADER	GTAGS,1,September 2009,GNU Project
 @NAME	gtags - create tag files for global.
 @SYNOPSIS
-	@name{gtags} [-ciIOqvw][-f @arg{file}][-n @arg{number}][@arg{dbpath}]
+	@name{gtags} [-ciIOqvw][-d @arg{tag-file}][-f @arg{file}][-n @arg{number}][@arg{dbpath}]
 @DESCRIPTION
 	@name{Gtags} recursively collect the source files under
 	the current directory,
@@ -55,6 +55,9 @@
 	@item{@option{--config}[=@arg{name}]}
 		Show the value of config variable @arg{name}.
 		If @arg{name} is not specified then show whole of config entry.
+	@item{@option{-d}, @option{--dump} @arg{tag-file}}
+		Dump a tag file. The output format is 'key<tab>data'.
+		This is for debugging.
 	@item{@option{-f}, @option{--file} @arg{file}}
 		Read from @arg{file} a list of file names which should be
 		considered as the candidate of source files.
@@ -82,6 +85,13 @@
 		@file{$MAKEOBJDIRPREFIX/<current directory>} directory and makes
 		tag files in it.
 		If @arg{dbpath} is specified, this options is ignored.
+	@item{@option{--single-update} @arg{file}}
+		Update tag files for single file.
+		It is considered that @arg{file} was updated, and other files were not
+		updated.  The @arg{file} must be relative path name from the current directory.
+		This option implies the -i option.
+		If the @arg{file} is new then @option{--single-update} is ignored,
+		and the processing is automatically switched to the normal incremental updating.
 	@item{@option{-q}, @option{--quiet}}
 		Quiet mode.
 	@item{@option{-v}, @option{--verbose}}

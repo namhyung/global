@@ -4,7 +4,7 @@ gtags - create tag files for global.
 @unnumberedsubsec SYNOPSIS
 @noindent
 @quotation
-gtags [-ciIOqvw][-f file][-n number][dbpath]@*
+gtags [-ciIOqvw][-d tag-file][-f file][-n number][dbpath]@*
 @end quotation
 @unnumberedsubsec DESCRIPTION
 Gtags recursively collect the source files under
@@ -35,6 +35,9 @@ because they are always made in compact format.
 @item @samp{--config}[=name]
 Show the value of config variable name.
 If name is not specified then show whole of config entry.
+@item @samp{-d}, @samp{--dump} tag-file
+Dump a tag file. The output format is 'key<tab>data'.
+This is for debugging.
 @item @samp{-f}, @samp{--file} file
 Read from file a list of file names which should be
 considered as the candidate of source files.
@@ -62,6 +65,13 @@ If @file{$MAKEOBJDIRPREFIX} directory exists, gtags creates
 @file{$MAKEOBJDIRPREFIX/<current directory>} directory and makes
 tag files in it.
 If dbpath is specified, this options is ignored.
+@item @samp{--single-update} file
+Update tag files for single file.
+It is considered that file was updated, and other files were not
+updated.  The file must be relative path name from the current directory.
+This option implies the -i option.
+If the file is new then @samp{--single-update} is ignored,
+and the processing is automatically switched to the normal incremental updating.
 @item @samp{-q}, @samp{--quiet}
 Quiet mode.
 @item @samp{-v}, @samp{--verbose}

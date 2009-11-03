@@ -23,7 +23,7 @@ File: global.info,  Node: Top,  Next: Introduction,  Up: (dir)
 GNU GLOBAL source code tag system
 *********************************
 
-This manual documents version 5.7.5 of the GNU GLOBAL source code tag
+This manual documents version 5.7.6 of the GNU GLOBAL source code tag
 system.
 
 * Menu:
@@ -2042,7 +2042,7 @@ SYNOPSIS
 
 
 
-     gtags [-ciIOqvw][-f file][-n number][dbpath]
+     gtags [-ciIOqvw][-d tag-file][-f file][-n number][dbpath]
 
 DESCRIPTION
 -----------
@@ -2073,6 +2073,10 @@ The following options are available:
 `--config'[=name]
      Show the value of config variable name.  If name is not specified
      then show whole of config entry.
+
+`-d', `--dump' tag-file
+     Dump a tag file. The output format is 'key<tab>data'.  This is for
+     debugging.
 
 `-f', `--file' file
      Read from file a list of file names which should be considered as
@@ -2105,6 +2109,14 @@ The following options are available:
      gtags creates `$MAKEOBJDIRPREFIX/<current directory>' directory
      and makes tag files in it.  If dbpath is specified, this options
      is ignored.
+
+`--single-update' file
+     Update tag files for single file.  It is considered that file was
+     updated, and other files were not updated.  The file must be
+     relative path name from the current directory.  This option
+     implies the -i option.  If the file is new then `--single-update'
+     is ignored, and the processing is automatically switched to the
+     normal incremental updating.
 
 `-q', `--quiet'
      Quiet mode.
@@ -3816,15 +3828,15 @@ Node: Incremental updating53175
 Node: Reference54586
 Node: global55168
 Node: gtags62668
-Node: htags69225
-Node: gtags-parser81481
-Node: gozilla84969
-Node: gtags-cscope87986
-Node: Copying This Manual90506
-Node: GNU Free Documentation License90752
-Node: Business Model113162
-Node: The BOKIN Model Definition113457
-Node: Frequently Asked Questions117655
-Node: Index121068
+Node: htags69751
+Node: gtags-parser82007
+Node: gozilla85495
+Node: gtags-cscope88512
+Node: Copying This Manual91032
+Node: GNU Free Documentation License91278
+Node: Business Model113688
+Node: The BOKIN Model Definition113983
+Node: Frequently Asked Questions118181
+Node: Index121594
 
 End Tag Table

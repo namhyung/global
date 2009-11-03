@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006
+ * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2009
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -310,7 +310,7 @@ dbop_first(DBOP *dbop, const char *name, regex_t *preg, int flags)
 			status == RET_SUCCESS;
 			status = (*db->seq)(db, &key, &dat, R_NEXT)) {
 			/* skip meta records */
-			if (ismeta(key.data))
+			if (ismeta(key.data) && !(dbop->openflags & DBOP_RAW))
 				continue;
 			if (preg && regexec(preg, (char *)key.data, 0, 0, 0) != 0)
 				continue;
@@ -359,10 +359,12 @@ dbop_next(DBOP *dbop)
 	while ((status = (*db->seq)(db, &key, &dat, R_NEXT)) == RET_SUCCESS) {
 		assert(dat.data != NULL);
 		/* skip meta records */
-		if (flags & DBOP_KEY && ismeta(key.data))
-			continue;
-		else if (ismeta(dat.data))
-			continue;
+		if (!(dbop->openflags & DBOP_RAW)) {
+			if (flags & DBOP_KEY && ismeta(key.data))
+				continue;
+			else if (ismeta(dat.data))
+				continue;
+		}
 		if (flags & DBOP_KEY) {
 			if (!strcmp(dbop->prev, (char *)key.data))
 				continue;

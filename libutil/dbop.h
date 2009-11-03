@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2006
+ * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2006, 2009
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -67,6 +67,7 @@ typedef	struct {
  */
 #define DBOP_KEY	1		/* read key part		*/
 #define DBOP_PREFIX	2		/* prefixed read		*/
+#define DBOP_RAW	4		/* raw read			*/
 
 DBOP *dbop_open(const char *, int, int, int);
 const char *dbop_get(DBOP *, const char *);
