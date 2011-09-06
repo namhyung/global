@@ -55,7 +55,7 @@ static char *include_pattern(const char *);
 static void command_help(void);
 static void command_loop(void);
 static int execute_command(STRBUF *, const int, const int, const char *);
-static void search(int, const char *);
+static void search(int, char *);
 
 int show_version;
 int show_help;
@@ -63,6 +63,7 @@ int qflag;
 int vflag;
 
 #define NA	-1
+#define FROM_HERE -2
 
 /*
 static void
@@ -90,7 +91,7 @@ static struct option const long_options[] = {
 };
 
 char global_path[MAXFILLEN];
-
+char *context;
 int ignore_case;
 
 /*
@@ -101,9 +102,9 @@ int ignore_case;
 static void
 check_dbpath(void)
 {
-	char cwd[MAXPATHLEN+1];
-	char root[MAXPATHLEN+1];
-	char dbpath[MAXPATHLEN+1];
+	char cwd[MAXPATHLEN];
+	char root[MAXPATHLEN];
+	char dbpath[MAXPATHLEN];
 
 	getdbpath(cwd, root, dbpath, vflag);
 }
@@ -328,14 +329,15 @@ execute_command(STRBUF *sb, const int com, const int opt, const char *arg)
 	strbuf_clear(command);
 	strbuf_puts(command, global_path);
 	strbuf_puts(command, " --result=cscope");
-	if (opt || ignore_case) {
-		strbuf_putc(command, ' ');
-		strbuf_putc(command, '-');
-		if (opt)
-			strbuf_putc(command, opt);
-		if (ignore_case)
-			strbuf_putc(command, 'i');
+	if (opt == FROM_HERE) {
+		strbuf_puts(command, " --from-here=");
+		strbuf_puts(command, context);
+	} else if (opt) {
+		strbuf_puts(command, " -");
+		strbuf_putc(command, opt);
 	}
+	if (ignore_case)
+		strbuf_puts(command, " --ignore-case");
 	strbuf_putc(command, ' ');
 	strbuf_putc(command, QUOTE);
 	strbuf_puts(command, arg);
@@ -407,10 +409,10 @@ execute_command(STRBUF *sb, const int com, const int opt, const char *arg)
  * Unsupported command prints "cscope: 0 lines\n".
  */
 static void
-search(int com, const char *arg)
+search(int com, char *arg)
 {
 	static STRBUF *sb;
-	char buf[1024];
+	char buf[1024], *p;
 	int count = 0, opt = 0;
 
 	if (sb == NULL)
@@ -425,7 +427,14 @@ search(int com, const char *arg)
 	case '1':		/* Find this definition */
 		break;
 	case '2':		/* Find functions called by this function */
-		opt = NA;
+		/*
+		 * <symbol>:<line number>:<path>
+		 */
+		for (p = arg; *p && *p != ':'; p++)
+			;
+		*p++ = '\0';
+		context = p;
+		opt = FROM_HERE;
 		break;
 	case '3':		/* Find functions calling this function */
 		opt = 'r';

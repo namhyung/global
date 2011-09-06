@@ -29,6 +29,7 @@
 #include <strings.h>
 #endif
 
+#include "die.h"
 #include "gparam.h"
 #include "strlimcpy.h"
 #include "token.h"
@@ -215,8 +216,14 @@ nexttoken(const char *interested, int (*reserved)(const char *, int))
 				if (tmp == '\"' || tmp == '\'')
 					continue;
 			}
-			for (*p++ = c; (c = nextchar()) != EOF && (c & 0x80 || isalnum(c) || c == '_'); *p++ = c)
-				;
+			for (*p++ = c; (c = nextchar()) != EOF && (c & 0x80 || isalnum(c) || c == '_');) {
+				if (tlen < sizeof(token))
+					*p++ = c;
+			}
+			if (tlen == sizeof(token)) {
+				warning("symbol name is too long. (Ignored)[+%d %s]", lineno, curfile);
+				continue;
+			}
 			*p = 0;
 	
 			if (c != EOF)

@@ -333,7 +333,7 @@ xargs_open_with_file(const char *command, int max_args, FILE *ip)
  * skeleton.
  */
 XARGS *
-xargs_open_with_argv(const char *command, int max_args, int argc, char **argv)
+xargs_open_with_argv(const char *command, int max_args, int argc, char *const *argv)
 {
 	XARGS *xp = xargs_open_generic(command, max_args);
 

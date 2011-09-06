@@ -63,6 +63,19 @@
 #include "varray.h"
 
 /*
+ * use an appropriate string comparison for the file system; define the position of the root slash.
+ */
+#if defined(_WIN32) || defined(__DJGPP__)
+#define STRCMP stricmp
+#define STRNCMP strnicmp
+#define ROOT 2
+#else
+#define STRCMP strcmp
+#define STRNCMP strncmp
+#define ROOT 0
+#endif
+
+/*
  * usage of find_xxx()
  *
  *	find_open(NULL);
@@ -81,8 +94,8 @@ static int list_count;
 static char **listarray;		/* list for skipping full path */
 static FILE *ip;
 static FILE *temp;
-static char rootdir[MAXPATHLEN+1];
-static char cwddir[MAXPATHLEN+1];
+static char rootdir[MAXPATHLEN];
+static char cwddir[MAXPATHLEN];
 static int find_mode;
 static int find_eof;
 #define FIND_OPEN	1
@@ -96,6 +109,7 @@ extern int qflag;
 #ifdef DEBUG
 extern int debug;
 #endif
+int allow_blank = 0;
 /*
  * trim: remove blanks and '\'.
  */
@@ -200,7 +214,7 @@ prepare_skip(void)
 	flags |= REG_ICASE;
 #endif
 	/*
-	 * initinalize common data.
+	 * initialize common data.
 	 */
 	if (!list)
 		list = strbuf_open(0);
@@ -298,7 +312,7 @@ prepare_skip(void)
  * skipthisfile: check whether or not we accept this file.
  *
  *	i)	path	path name (must start with ./)
- *	r)		1: skip, 0: dont skip
+ *	r)		1: skip, 0: don't skip
  *
  * Specification of required path name.
  * o Path must start with "./".
@@ -333,7 +347,7 @@ skipthisfile(const char *path)
 		 * the path must start with "./".
 		 */
 		if (*(last - 1) == '/') {	/* it's a directory */
-			if (!strncmp(path + 1, first, last - first)) {
+			if (!STRNCMP(path + 1, first, last - first)) {
 #ifdef DEBUG
 				if (debug)
 					fprintf(stderr, "skipthisfile(2): %s\n", path);
@@ -341,7 +355,7 @@ skipthisfile(const char *path)
 				return 1;
 			}
 		} else {
-			if (!strcmp(path + 1, first)) {
+			if (!STRCMP(path + 1, first)) {
 #ifdef DEBUG
 				if (debug)
 					fprintf(stderr, "skipthisfile(3): %s\n", path);
@@ -356,7 +370,7 @@ skipthisfile(const char *path)
 /*
  * Directory Stack
  */
-static char dir[MAXPATHLEN+1];			/* directory path */
+static char dir[MAXPATHLEN];			/* directory path */
 static VARRAY *stack;				/* dynamic allocated array */
 struct stack_entry {
 	STRBUF *sb;
@@ -418,6 +432,11 @@ find_open(const char *start)
 	assert(find_mode == 0);
 	find_mode = FIND_OPEN;
 
+	/*
+	 * This is temporary measures. It doesn't decide how to become final.
+	 */
+	if (getenv("GTAGSALLOWBLANK"))
+		allow_blank = 1;
 	if (!start)
 		start = "./";
 	/*
@@ -453,13 +472,18 @@ find_open_filelist(const char *filename, const char *root)
 	assert(find_mode == 0);
 	find_mode = FILELIST_OPEN;
 
+	/*
+	 * This is temporary measures. It doesn't decide how to become final.
+	 */
+	if (getenv("GTAGSALLOWBLANK"))
+		allow_blank = 1;
 	if (!strcmp(filename, "-")) {
 		/*
 		 * If the filename is '-', copy standard input onto
 		 * temporary file to be able to read repeatedly.
 		 */
 		if (temp == NULL) {
-			char buf[MAXPATHLEN+1];
+			char buf[MAXPATHLEN];
 
 			temp = tmpfile();
 			while (fgets(buf, sizeof(buf), stdin) != NULL)
@@ -475,7 +499,7 @@ find_open_filelist(const char *filename, const char *root)
 	/*
 	 * rootdir always ends with '/'.
 	 */
-	if (!strcmp(root, "/"))
+	if (!strcmp(root+ROOT, "/"))
 		strlimcpy(rootdir, root, sizeof(rootdir));
 	else
 		snprintf(rootdir, sizeof(rootdir), "%s/", root);
@@ -515,8 +539,8 @@ find_read(void)
 char *
 find_read_traverse(void)
 {
-	static char val[MAXPATHLEN+1];
-	char path[MAXPATHLEN+1];
+	static char val[MAXPATHLEN];
+	char path[MAXPATHLEN];
 	struct stack_entry *curp = varray_assign(stack, current_entry, 1);
 
 	for (;;) {
@@ -553,7 +577,7 @@ find_read_traverse(void)
 				 * GLOBAL cannot treat path which includes blanks.
 				 * It will be improved in the future.
 				 */
-				if (locatestring(path, " ", MATCH_FIRST)) {
+				if (!allow_blank && locatestring(path, " ", MATCH_FIRST)) {
 					warning("'%s' ignored, because it includes blank.", &path[2]);
 					continue;
 				}
@@ -632,6 +656,11 @@ find_read_filelist(void)
 			continue;
 		}
 		/*
+		 * Lines which start with ". " are considered to be comments.
+		 */
+		if (*path == '.' && *(path + 1) == ' ')
+			continue;
+		/*
 		 * Skip the following:
 		 * o directory
 		 * o file which does not exist
@@ -659,7 +688,7 @@ find_read_filelist(void)
 		 * GLOBAL cannot treat path which includes blanks.
 		 * It will be improved in the future.
 		 */
-		if (locatestring(path, " ", MATCH_LAST)) {
+		if (!allow_blank && locatestring(path, " ", MATCH_LAST)) {
 			warning("'%s' ignored, because it includes blank.", path + 2);
 			continue;
 		}

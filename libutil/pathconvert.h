@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2006 Tama Communications Corporation
+ * Copyright (c) 2005, 2006, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -28,14 +28,18 @@ typedef struct {
 	int type;		/* PATH_ABSOLUTE, PATH_RELATIVE */
 	int format;		/* defined in format.h */
 	STRBUF *abspath;
-	char basedir[MAXPATHLEN+1];
+	char basedir[MAXPATHLEN];
 	int start_point;
 
 } CONVERT;
 
+void set_encode_chars(const unsigned char *);
+void set_print0();
+char *decode_path(const unsigned char *);
 CONVERT *convert_open(int, int, const char *, const char *, const char *, FILE *);
-void convert_put(CONVERT *cv, const char *line);
-void convert_put_using(CONVERT *, const char *, const char *, int, const char *);
+void convert_put(CONVERT *, const char *);
+void convert_put_path(CONVERT *, const char *);
+void convert_put_using(CONVERT *, const char *, const char *, int, const char *, const char *);
 void convert_close(CONVERT *cv);
 
 #endif /* ! _PATHCONVERT_H_ */

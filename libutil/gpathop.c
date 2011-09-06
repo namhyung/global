@@ -142,7 +142,7 @@ gpath_open(const char *dbpath, int mode)
 void
 gpath_put(const char *path, int type)
 {
-	char fid[32];
+	char fid[MAXFIDLEN];
 	STATIC_STRBUF(sb);
 
 	assert(opened > 0);
@@ -248,7 +248,7 @@ gpath_nextkey(void)
 void
 gpath_close(void)
 {
-	char fid[32];
+	char fid[MAXFIDLEN];
 
 	assert(opened > 0);
 	if (--opened > 0)

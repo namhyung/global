@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2006
+ * Copyright (c) 1997, 1998, 1999, 2000, 2006, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -38,6 +38,7 @@
 #endif
 
 #include "locatestring.h"
+#include "char.h"
 #include "die.h"
 #include "test.h"
 
@@ -51,8 +52,8 @@ static int
 is_binary(const char *path)
 {
 	int ip;
-	char buf[32];
-	int i, c, size;
+	char buf[512];
+	int i, size;
 
 	ip = open(path, O_RDONLY);
 	if (ip < 0)
@@ -61,11 +62,12 @@ is_binary(const char *path)
 	close(ip);
 	if (size < 0)
 		return 1;
-	if (size >= 7 && locatestring(buf, "!<arch>", MATCH_AT_FIRST))
+	if (size >= 7 && locatestring(buf, "!<arch>", MATCH_AT_FIRST))	/* ar */
+		return 1;
+	if (size >= 4 && locatestring(buf, "%PDF", MATCH_AT_FIRST))	/* PDF */
 		return 1;
 	for (i = 0; i < size; i++) {
-		c = (unsigned char)buf[i];
-		if (c == 0 || c > 127)
+		if (isbinarychar(buf[i]))
 			return 1;
 	}
 	return 0;

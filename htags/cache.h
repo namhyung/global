@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Tama Communications Corporation
+ * Copyright (c) 2004, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -20,7 +20,7 @@
 #define _CACHE_H_
 
 void cache_open(void);
-void cache_put(int, const char *, const char *);
+void cache_put(int, const char *, const char *, int);
 const char *cache_get(int, const char *);
 void cache_close(void);
 

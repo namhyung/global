@@ -28,12 +28,15 @@
 	@name{gtags-cscope} [-Cqv]
 @DESCRIPTION
 	@name{Gtags-cscope} is a pseudo cscope which implements the
-	line-oriented interface.
+	line-oriented interface of @xref{cscope,1}.
 	You can use this command for various clients instead of true cscope.
 
 	Since @name{gtags-cscope} is intended to make GLOBAL available
 	through cscope interface, the output is not necessarily the same
 	as cscope.
+
+	Command 2 is not available.
+	This command is used as a internal command for context search.
 @OPTIONS
         The following options are available:
         @begin_itemize
@@ -49,8 +52,7 @@
 	>> help
 	0<arg>: Find this C symbol
 	1<arg>: Find this definition
-	2<arg>: Find functions called by this function
-		(Not implemented yet.)
+	2<arg>: <NA>(This command is used by gtags-cscope.vim internally)
 	3<arg>: Find functions calling this function
 	4<arg>: Find this text string
 	6<arg>: Find this egrep pattern
@@ -77,7 +79,6 @@
 	@name{Gtags-cscope} exits with a non 0 value if an error occurred, 0 otherwise.
 @SEE ALSO
 	@xref{cscope,1},
-	@xref{gtags-parser,1},
 	@xref{gtags,1},
 	@xref{global,1},
 	@xref{htags,1}.
@@ -89,6 +90,6 @@
 	GLOBAL doesn't recognize it.
 	Command 2 (Find functions called by this function) is not implemented.
 @AUTHOR
-	Tama Communications Corporation.
+	Shigio YAMAGUCHI.
 @HISTORY
 	The @name{gtags-cscope} command appeared in 2006.

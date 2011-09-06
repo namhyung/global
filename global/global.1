@@ -1,55 +1,60 @@
 .\" This file is generated automatically by convert.pl from global/manual.in.
-.TH GLOBAL 1 "February 2009" "GNU Project"
+.TH GLOBAL 1 "March 2010" "GNU Project"
 .SH NAME
-global \- print the locations of specified object.
+global \- print locations of the specified object.
 .SH SYNOPSIS
 \fBglobal\fP [-aGilnqrstTvx][-e] \fIpattern\fP
 .br
-\fBglobal\fP -c[qrsv] \fIprefix\fP
+\fBglobal\fP -c[iIqsv] \fIprefix\fP
 .br
-\fBglobal\fP -f[anqrstvx] \fIfiles\fP
+\fBglobal\fP -f[anqrstvx][-L file-list] \fIfiles\fP
 .br
-\fBglobal\fP -g[aGilnoOqtvx][-e] \fIpattern\fP
+\fBglobal\fP -g[aGilnoOqtvVx][-L file-list][-e] \fIpattern\fP [\fIfiles\fP]
 .br
 \fBglobal\fP -I[ailnqtvx][-e] \fIpattern\fP
 .br
-\fBglobal\fP -P[aGilnoOqtvx][-e] \fIpattern\fP
+\fBglobal\fP -P[aGilnoOqtvVx][-e] \fIpattern\fP
 .br
 \fBglobal\fP -p[qrv]
 .br
 \fBglobal\fP -u[qv]
 .br
 .SH DESCRIPTION
-\fBGlobal\fP find the locations of specified object
-in C, C++, Yacc, Java, PHP and Assembly source files.
-\fBGlobal\fP can treat a source tree, that is, a directory that
-has sub-directories and source files as a project.
-You can get the relative path of objects from anywhere within the project.
+\fBGlobal\fP finds locations of the specified object
+in C, C++, Yacc, Java, PHP and Assembly source files,
+and print the path name, line number and line image of the locations.
 \fBGlobal\fP can locate not only object definitions but also object
 references and other symbols.
 .PP
+\fBGlobal\fP can treat a source tree, that is, a directory that
+has sub-directories and source files as a project.
 In advance of using this command, you must execute \fBgtags\fP(1)
-at the root directory of the project to make tag files.
-Then you can execute this command at anywhere in the project.
+at the root directory of a project to make tag files.
+Then you can execute this command anywhere in the project.
+You need not specify where the tag file is.
+Instead, \fBglobal\fP locates it by itself.
+.PP
+You can specify a regular expression for the \fIpattern\fP.
+\fBGlobal\fP understands two different versions of regular expression
+syntax: \fIbasic\fP and \fIextended\fP. The default is \fIextended\fP.
 .SH COMMANDS
 The following commands are available:
 .TP
 <no command> \fIpattern\fP
-Print object which match to the \fIpattern\fP.
-Extended regular expressions which are the same as those
-accepted by \fBegrep\fP(1) are available.
+Print objects which match to the \fIpattern\fP.
+By default, print object definitions.
 .TP
 \fB-c\fP, \fB--completion\fP [\fIprefix\fP]
-Print the candidates of object names which start with the specified
-\fIprefix\fP. \fIPrefix\fP is not specified,
-print all object names.
+Print object names which start with the specified \fIprefix\fP.
+If \fIprefix\fP is not specified, print all object names.
 .TP
 \fB-f\fP, \fB--file\fP \fIfiles\fP
-Print all tags in the \fIfiles\fP.
-This option implies the -x option.
+Print all objects in the \fIfiles\fP.
+This option implies the \fB-x\fP option.
 .TP
-\fB-g\fP, \fB--grep\fP \fIpattern\fP
+\fB-g\fP, \fB--grep\fP \fIpattern\fP [\fIfiles\fP]
 Print all lines which match to the \fIpattern\fP.
+If \fIfiles\fP is specified, this command searchs in the files.
 .TP
 \fB--help\fP
 Show help.
@@ -58,18 +63,20 @@ Show help.
 Print all lines which match to the \fIpattern\fP.
 This function use \fBidutils\fP(1) as a search engine.
 To use this command, you need to install \fBidutils\fP(1)
-in your system and you must execute \fBgtags\fP(1)
-with the \fB-I\fP option.
+in your system and execute \fBgtags\fP(1) with the \fB-I\fP option.
 .TP
 \fB-P\fP, \fB--path\fP [\fIpattern\fP]
-Print the paths which match to the \fIpattern\fP.
-If no pattern specified, print all paths in the project.
+Print path names which match to the \fIpattern\fP.
+If no pattern specified, print all path names in the project.
 .TP
 \fB-p\fP, \fB--print-dbpath\fP
 Print the location of \'GTAGS\'.
 .TP
 \fB-u\fP, \fB--update\fP
-Locate tag files and update them incrementally.
+Update tag files incrementally.
+This command internally invokes \fBgtags\fP(1).
+You can execute this command anywhere in the project
+differing from \fBgtags\fP(1).
 .TP
 \fB--version\fP
 Show version number.
@@ -80,56 +87,68 @@ The following options are available:
 Print absolute path name. By default, print relative path name.
 .TP
 \fB--from-here\fP \fIcontext\fP
-Decide tag type by the context. The \fIcontext\fP must be 'lineno:path'.
+Decide tag type by the \fIcontext\fP. The \fIcontext\fP must be 'lineno:path'.
 If this option is specified then the \fB-s\fP and \fB-r\fP
 are ignored.
-Regular expression is not allowed in the \fIpattern\fP.
+Regular expression is not allowed for the \fIpattern\fP.
 This option assumes use in conversational environments such as
 editors and IDEs.
 .TP
 \fB-e\fP, \fB--regexp\fP \fIpattern\fP
-Use \fIpattern\fP as the pattern; useful to protect  patterns
+Use \fIpattern\fP as the pattern; useful to protect patterns
 beginning with \'-\'.
 .TP
+\fB--encode-path\fP \fIchars\fP
+Convert path characters in \fIchars\fP into a '%' symbol, followed by the
+two-digit hexadecimal representation of the character.
+A blank will be converted to '%20'.
+.TP
 \fB-G\fP, \fB--basic-regexp\fP
-Interpret \fIpattern\fP as a  basic regular expression.
+Interpret \fIpattern\fP as a basic regular expression.
 The default is extended regular expression.
 .TP
 \fB-i\fP, \fB--ignore-case\fP
-ignore case distinctions in pattern.
+Ignore case distinctions in the pattern.
 .TP
 \fB-l\fP, \fB--local\fP
-Print just objects which exist under the current directory.
+Print only objects which exist under the current directory.
+.TP
+\fB-L\fP, \fB--file-list\fP \fIfile-list\fP
+Obtain files from \fIfile-list\fP in addition to the arguments.
 .TP
 \fB-n\fP, \fB--nofilter\fP
 Suppress sort filter and path conversion filter.
 .TP
 \fB-O\fP, \fB--only-other\fP
-Search pattern only in other than source files like \'README\'.
-This option is valid only with \fB-g\fP or \fB-P\fP command.
+Treat only text files other than source code like \'README\'.
+This option is valid only with the \fB-g\fP or \fB-P\fP command.
 This option override the \fB-o\fP option.
 .TP
 \fB-o\fP, \fB--other\fP
-Search pattern in not only source files but also other files
+Treat not only source files but also text files other than source code
 like \'README\'.
-This option is valid only with \fB-g\fP or \fB-P\fP command.
+This option is valid only with the \fB-g\fP or \fB-P\fP command.
+.TP
+\fB--print0\fP
+Print each record followed by a null character instead of a newline.
 .TP
 \fB-q\fP, \fB--quiet\fP
 Quiet mode.
 .TP
 \fB-r\fP, \fB--reference\fP, \fB--rootdir\fP
-Print the locations of object references.
-By default, print object definitions.
-With the \fB-p\fP option, print the root directory of source tree.
+Print locations of object references.
+With the \fB-p\fP option, print the root directory of the project.
 .TP
 \fB--result\fP \fIformat\fP
-\fIformat\fP may be 'path', `ctags', `ctags-x', `grep' or 'cscope'.
+Print out using the specified \fIformat\fP.
+\fIformat\fP may be \fIpath\fP, \fIctags\fP, \fIctags-x\fP, \fIgrep\fP or \fIcscope\fP.
+The default is \fIpath\fP.
 The \fB--result=ctags\fP and \fB--result=ctags-x\fP are
 equivalent to the \fB-t\fP and \fB-x\fP respectively.
 The \fB--result\fP option is given to priority more than the -t and -x option.
 .TP
 \fB-s\fP, \fB--symbol\fP
-Print the locations of specified symbol other than definitions.
+Print locations of the specified symbol other than definitions.
 .TP
 \fB-T\fP, \fB--through\fP
 Go through all the tag files listed in \fBGTAGSLIBPATH\fP.
@@ -138,14 +157,17 @@ This option is ignored when either \fB-s\fP, \fB-r\fP
 or \fB-l\fP option is specified.
 .TP
 \fB-t\fP, \fB--tags\fP
-Print with standard ctags format.
+Use standard ctags format.
 .TP
 \fB-v\fP, \fB--verbose\fP
 Verbose mode.
 .TP
+\fB-V\fP, \fB--invert-match\fP
+Invert the sense of matching, to select non-matching lines.
+This option is valid in the \fB-g\fP and \fB-P\fP command.
+.TP
 \fB-x\fP, \fB--cxref\fP
-In addition to the default output, produce the line number and
-the line contents.
+Use standard ctags cxref (with the \fI-x\fP) format.
 .SH EXAMPLES
 .nf
 	$ ls -F
@@ -155,18 +177,18 @@ the line contents.
 	src/main.c
 	$ global -x main
 	main              10 src/main.c  main (argc, argv) {
+	$ global -f src/main.c
+	main              10 src/main.c  main (argc, argv) {
+	func1		  55 src/main.c  func1() {		  
+	func2		  72 src/main.c  func2() {		  
+	func3		 120 src/main.c  func3() {		  
 	$ global -x '^[sg]et'
-	set_num           20 lib/util.c  set_num(values)
+	set_num           20 lib/util.c  set_num(values) {
 	get_num           30 lib/util.c  get_num() {
 	$ global -rx '^[sg]et'
+	get_num          205 src/op.c            while (get_num() > 0) {
 	set_num          113 src/op.c            set_num(32);
 	set_num          225 src/opop.c               if (set_num(0) > 0) {
-	get_num           90 src/op.c            while (get_num() > 0) {
-	$ cd lib
-	$ global -rx '^[sg]et'
-	set_num          113 ../src/op.c            set_num(32);
-	set_num          225 ../src/opop.c               if (set_num(0) > 0) {
-	get_num           90 ../src/op.c            while (get_num() > 0) {
 	$ global strlen
 	$ (cd /usr/src/sys; gtags)
 	$ export GTAGSLIBPATH=/usr/src/sys
@@ -185,44 +207,42 @@ Tag file for object definitions.
 \'GRTAGS\'
 Tag file for object references.
 .TP
-\'GSYMS\'
-Tag file for other symbols.
-.TP
 \'GPATH\'
 Tag file for path of source files.
 .TP
 \'GTAGSROOT\'
-If environment variable \fBGTAGSROOT\fP is not set and \'GTAGSROOT\' exist
-in the same directory with \'GTAGS\' then use the value
-as \fBGTAGSROOT\fP.
+If environment variable \fBGTAGSROOT\fP is not set
+and file \'GTAGSROOT\' exists in the same directory with \'GTAGS\'
+then \fBglobal\fP set the \fBGTAGSROOT\fP to the content of the file.
 .TP
-\'/etc/gtags.conf\', \'$HOME/.globalrc\'
+\'$HOME/.globalrc\', \'/etc/gtags.conf\', \'[sysconfdir]/gtags.conf\'
 Configuration file.
 .SH ENVIRONMENT
 The following environment variables affect the execution of \fBglobal\fP:
 .TP
 \fBGTAGSROOT\fP
-The directory which is the root of source code.
+The root directory of the project.
 .TP
 \fBGTAGSDBPATH\fP
-The directory on which gtags database exist.
+The directory on which tag files exist.
 This value is ignored when \fBGTAGSROOT\fP is not defined.
 .TP
 \fBGTAGSLIBPATH\fP
 If this variable is set, it is used as the path to search
 for library functions. If the specified object is not
-found in the source project, \fBglobal\fP also search in these paths.
+found in the project, \fBglobal\fP also search in these paths.
 Since only \'GTAGS\' is targeted in the retrieval, this variable is
 ignored when the \fB-r\fP or \fB-s\fP is specified.
 .TP
+\fBGTAGSCONF\fP
+Configuration file. The default is \'$HOME/.globalrc\'.
+.TP
 \fBGTAGSLABEL\fP
-If this variable is set, its value is used as the label
-of configuration file. The default is default.
+Configuration label. The default is \fIdefault\fP.
 .TP
 \fBMAKEOBJDIRPREFIX\fP
-If this variable is set, \'$MAKEOBJDIRPREFIX<current directory>\'
-is used as the candidate directory for tag files.
-The default is \'/usr/obj\'.
+If this variable is set, \'$MAKEOBJDIRPREFIX\' is used as the prefix
+of BSD-style objdir. The default is \'/usr/obj\'.
 .SH CONFIGURATION
 The following configuration variables affect the execution of \fBglobal\fP:
 .TP
@@ -231,7 +251,6 @@ Ignore case distinctions in the \fIpattern\fP.
 .SH DIAGNOSTICS
 \fBGlobal\fP exits with a non 0 value if an error occurred, 0 otherwise.
 .SH "SEE ALSO"
-\fBgtags-parser\fP(1),
 \fBgtags\fP(1),
 \fBhtags\fP(1),
 \fBless\fP(1).
@@ -240,6 +259,6 @@ GNU GLOBAL source code tag system
 .br
 (http://www.gnu.org/software/global/).
 .SH AUTHOR
-Tama Communications Corporation.
+Shigio YAMAGUCHI, Hideki IWAMOTO and others.
 .SH HISTORY
 The \fBglobal\fP command appeared in FreeBSD 2.2.2.

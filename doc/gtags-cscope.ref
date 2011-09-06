@@ -8,12 +8,15 @@ gtags-cscope [-Cqv]@*
 @end quotation
 @unnumberedsubsec DESCRIPTION
 Gtags-cscope is a pseudo cscope which implements the
-line-oriented interface.
+line-oriented interface of cscope(1).
 You can use this command for various clients instead of true cscope.
 
 Since gtags-cscope is intended to make GLOBAL available
 through cscope interface, the output is not necessarily the same
 as cscope.
+
+Command 2 is not available.
+This command is used as a internal command for context search.
 @unnumberedsubsec OPTIONS
 The following options are available:
 @table @asis
@@ -30,8 +33,7 @@ Verbose mode.
 	>> help
 	0<arg>: Find this C symbol
 	1<arg>: Find this definition
-	2<arg>: Find functions called by this function
-		(Not implemented yet.)
+	2<arg>: <NA>(This command is used by gtags-cscope.vim internally)
 	3<arg>: Find functions calling this function
 	4<arg>: Find this text string
 	6<arg>: Find this egrep pattern
@@ -59,7 +61,6 @@ Verbose mode.
 Gtags-cscope exits with a non 0 value if an error occurred, 0 otherwise.
 @unnumberedsubsec SEE ALSO
 cscope(1),
-gtags-parser(1),
 gtags(1),
 global(1),
 htags(1).
@@ -71,6 +72,6 @@ The second field of the output is almost <unknown> since
 GLOBAL doesn't recognize it.
 Command 2 (Find functions called by this function) is not implemented.
 @unnumberedsubsec AUTHOR
-Tama Communications Corporation.
+Shigio YAMAGUCHI.
 @unnumberedsubsec HISTORY
 The gtags-cscope command appeared in 2006.

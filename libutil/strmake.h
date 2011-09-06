@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 1999, 2000, 2004, 2006
+ * Copyright (c) 1998, 1999, 2000, 2004, 2006, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -40,5 +40,6 @@
 const char *strmake(const char *, const char *);
 const char *strtrim(const char *, int, int *);
 int strcmp_withterm(const char *, const char *, int);
+const char *strcpy_withterm(char *, const char *, int, int);
 
 #endif /* ! _STRMAKE_H_ */

@@ -25,6 +25,7 @@
 #include "char.h"
 #include "strbuf.h"
 
+#define B	BINARYCHAR
 #define R	REGEXCHAR
 #define U	URLCHAR
 #define RU	REGEXCHAR | URLCHAR
@@ -32,8 +33,8 @@ const unsigned char chartype[256] = {
 #if '\n' == 0x0a && ' ' == 0x20 && '0' == 0x30 \
   && 'A' == 0x41 && 'a' == 0x61 && '!' == 0x21
 	/* ASCII */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	B, B, B, B, B, B, B, B, 0, 0, 0, 0, 0, 0, B, B,
+	B, B, B, B, B, B, B, B, B, B, B, 0, B, B, B, B,
 	0, U, 0, 0, R, 0, 0, U,RU,RU,RU, R, 0, U,RU, U,	/*  !"#$%&'()*+,-./ */
 	U, U, U, U, U, U, U, U, U, U, 0, 0, 0, 0, 0, R,	/* 0123456789:;<=>? */
 	0, U, U, U, U, U, U, U, U, U, U, U, U, U, U, U,	/* @ABCDEFGHIJKLMNO */

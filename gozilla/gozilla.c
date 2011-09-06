@@ -65,9 +65,9 @@ void show_page_by_url(const char *, const char *);
 #define isblank(c)	((c) == ' ' || (c) == '\t')
 #endif
 
-char cwd[MAXPATHLEN+1];
-char root[MAXPATHLEN+1];
-char dbpath[MAXPATHLEN+1];
+char cwd[MAXPATHLEN];
+char root[MAXPATHLEN];
+char dbpath[MAXPATHLEN];
 
 int bflag;
 int pflag;
@@ -181,7 +181,7 @@ alias(const char *alias_name)
 static const char *
 locate_HTMLdir(void)
 {
-	static char htmldir[MAXPATHLEN+1];
+	static char htmldir[MAXPATHLEN];
 
 	if (test("d", makepath(dbpath, "HTML", NULL)))
 		strlimcpy(htmldir, makepath(dbpath, "HTML", NULL), sizeof(htmldir));
@@ -314,47 +314,28 @@ main(int argc, char **argv)
 void
 getdefinitionURL(const char *arg, STRBUF *URL)
 {
-	const char *path;
+	FILE *fp;
 	char *p;
-	STRBUF *sb = NULL;
-	DBOP *dbop = NULL;
 	SPLIT ptable;
 	int status = -1;
+	STRBUF *sb = strbuf_open(0);
 	const char *htmldir = locate_HTMLdir();
+	const char *path = makepath(htmldir, "MAP", NULL);
 
-	path = makepath(htmldir, "MAP.db", NULL);
-	if (test("f", path))
-		dbop = dbop_open(path, 0, 0, 0);
-	if (!dbop) {
-		path = makepath(htmldir, "MAP", NULL);
-		if (!test("f", path))
-			die("'%s' not found. Please reconstruct hypertext using the latest htags(1).", path);
-		dbop = dbop_open(path, 0, 0, 0);
-	}
-	if (dbop) {
-		if ((p = (char *)dbop_get(dbop, arg)) != NULL) {
-			if (split(p, 2, &ptable) != 2)
-				die("illegal format.");
+	if (!test("f", path))
+		die("'%s' not found. Please reconstruct hypertext using the latest htags(1).", path);
+	fp = fopen(path, "r");
+	if (!fp)
+		die("cannot open '%s'.", path);
+	while ((p = strbuf_fgets(sb, fp, STRBUF_NOCRLF)) != NULL) {
+		if (split(p, 2, &ptable) != 2)
+			die("illegal format.");
+		if (!strcmp(arg, ptable.part[0].start)) {
 			status = 0;
-		}
-		dbop_close(dbop);
-	} else {
-		FILE *fp;
-
-		sb = strbuf_open(0);
-		fp = fopen(path, "r");
-		if (fp) {
-			while ((p = strbuf_fgets(sb, fp, STRBUF_NOCRLF)) != NULL) {
-				if (split(p, 2, &ptable) != 2)
-					die("illegal format.");
-				if (!strcmp(arg, ptable.part[0].start)) {
-					status = 0;
-					break;
-				}
-			}
-			fclose(fp);
+			break;
 		}
 	}
+	fclose(fp);
 	if (status == -1)
 		die("definition %s not found.", arg);
 	strbuf_reset(URL);
@@ -363,8 +344,7 @@ getdefinitionURL(const char *arg, STRBUF *URL)
 	 */
 	makefileurl(makepath(htmldir, ptable.part[1].start, NULL), 0, URL);
 	recover(&ptable);
-	if (sb != NULL)
-		strbuf_close(sb);
+	strbuf_close(sb);
 }
 /*
  * getURL: get URL of the specified file.
@@ -376,7 +356,7 @@ void
 getURL(const char *file, STRBUF *URL)
 {
 	char *p;
-	char buf[MAXPATHLEN+1];
+	char buf[MAXPATHLEN];
 	STRBUF *sb = strbuf_open(0);
 	const char *htmldir = locate_HTMLdir();
 
@@ -527,7 +507,7 @@ show_page_by_url(const char *browser, const char *url)
 void
 show_page_by_url(const char *browser, const char *url)
 {
-	char com[MAXFILLEN+1];
+	char com[MAXFILLEN];
 	char *path;
 
 	/*

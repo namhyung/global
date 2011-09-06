@@ -4,7 +4,7 @@ ___________________________________
 |  |   |  |  |  |  |     |     |  |
 |  ~~  |   ~~|     |  ~  |  |  |   ~~|          for all hackers.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Copyright (c) 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ Copyright (c) 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 	Tama Communications Corporation
 
  This file is free software; as a special exception the author gives
@@ -84,10 +84,17 @@ A2. GLOBAL cannot recognize 'func()', because M(a) seems to be a function
 	|...
 
 ----------------------------------------------------------------------------
-Q3. Why doesn't htags(1) generate XHTML+CSS hypertext by default?
+Q3. I'm a C++ programmer. Why does not gtags pick up the class names in *.h?
 
-A3. Because still a lot of browsers which cannot treat XHTML+CSS well remain.
-    If you hope XHTML+CSS, please use the --xhtml option of htags.
+A3. GLOBAL treats *.h files as a C source file. If you want to treat them
+    as a C++ source file, please set environment variable GTAGSFORCECPP.
+
+	% setenv GTAGSFORCECPP
+
+        or
+
+	$ export GTAGSFORCECPP=
+
 ----------------------------------------------------------------------------
 Q4. I'm using GNU system. In a large project, gtags fails in making tags
     like follows:
@@ -110,10 +117,19 @@ Q5. Deleted.
 Q6. It seems that gtags(1) cannot treat files which include blanks in the path.
     Why?
 
-A6. Because it is hard for GLOBAL to treat them correctly with keeping
-    upper compatibility. Gtags(1) currently ignores files which include
-    blanks in the path. We put the improvement to our TODO list but
-    the priority is not high. The best way is not to use blanks in path name.
+A6. GLOBAL will support path names which include blanks.
+    It is doing the examination operation now.
+    Please set a environment variable GTAGSALLOWBLANK.
+
+	% setenv GTAGSALLOWBLANK
+
+        or
+
+	$ export GTAGSALLOWBLANK=
+
+    And gtags(1) will pick up files whose path name include blanks.
+    (Vim and less support cannot be done without the authors's cooperation.)
+    Please mail to us when you find a bug. Thank you.
 
 ----------------------------------------------------------------------------
 Q7. Gtags(1) and htags(1) work only for one directory tree. So, we cannot

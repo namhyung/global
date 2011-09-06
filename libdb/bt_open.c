@@ -67,7 +67,8 @@ static char sccsid[] = "@(#)bt_open.c	8.10 (Berkeley) 8/17/94";
 #endif
 
 #if (defined(_WIN32) && !defined(__CYGWIN__))
-#define mkstemp(p) open(_mktemp(p), _O_CREAT | _O_SHORT_LIVED | _O_EXCL)
+#include <share.h>
+#define mkstemp(p) open(_mktemp(p), _O_CREAT | _O_RDWR | _O_BINARY | _O_TEMPORARY, _S_IWRITE | _SH_DENYRW)
 #endif
 
 #include "db.h"

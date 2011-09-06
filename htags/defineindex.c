@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005
+ * Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005,
+ *	2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -195,21 +196,15 @@ makedefineindex(const char *file, int total, STRBUF *defines)
 
 		if (line == NULL)
 			die("internal error in makedefineindex()."); 
+		/*
+		 * About the format of 'line', please see the head comment of cache.c.
+		 */
 		if (*line == ' ') {
-			SPLIT ptable;
-			const char *fid, *enumber;
+			const char *fid = line + 1;
+			const char *enumber = nextstring(fid);
 
-			if (split((char *)line + 1, 2, &ptable) < 2) {
-				recover(&ptable);
-				die("too small number of parts in makedefineindex().\n'%s'", line);
-			}
-			fid     = ptable.part[0].start;
-			enumber = ptable.part[1].start;
 			snprintf(url_for_map, sizeof(url_for_map), "%s/%s.%s",
 				DEFS, fid, HTML);
-			/*
-			 * cache record: " <file id> <entry number>"
-			 */
 			if (dynamic) {
 				if (*action != '/' && aflag)
 					strbuf_puts(url, "../");
@@ -221,27 +216,18 @@ makedefineindex(const char *file, int total, STRBUF *defines)
 				strbuf_sprintf(url, "%s/%s.%s", DEFS, fid, HTML);
 			}
 			snprintf(guide, sizeof(guide), "Multiple defined in %s places.", enumber);
-			recover(&ptable);
 		} else {
-			SPLIT ptable;
-			const char *lno, *fid, *path;
+			const char *lno = line;
+			const char *fid = nextstring(line);
+			const char *path = gpath_fid2path(fid, NULL);
 
-			if (split((char *)line, 2, &ptable) < 2) {
-				recover(&ptable);
-				die("too small number of parts in makedefineindex().\n'%s'", line);
-			}
-			lno = ptable.part[0].start;
-			path = ptable.part[1].start;
 			path += 2;		/* remove './' */
-
-			fid = path2fid(path);
 			snprintf(url_for_map, sizeof(url_for_map), "%s/%s.%s#L%s",
 				SRCS, fid, HTML, lno);
 			if (aflag)
 				strbuf_puts(url, "../");
 			strbuf_sprintf(url, "%s/%s.%s#L%s", SRCS, fid, HTML, lno);
 			snprintf(guide, sizeof(guide), "Defined at %s in %s.", lno, path);
-			recover(&ptable);
 		}
 		if (!no_order_list)
 			fputs(item_begin, STDOUT);

@@ -49,7 +49,7 @@ now(void)
 #else
 	FILE *ip;
 
-	strlimcpy(buf, "unkown time", sizeof(buf));
+	strlimcpy(buf, "unknown time", sizeof(buf));
 	if ((ip = popen("date", "r")) != NULL) {
 		if (fgets(buf, sizeof(buf), ip))
 			buf[strlen(buf) - 1] = 0;

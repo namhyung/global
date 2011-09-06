@@ -1,7 +1,7 @@
 #
 # Gtags.pl --- Global facility for Nvi-1.81
 #
-# Copyright (c) 2001, 2002, 2008 Tama Communications Corporation
+# Copyright (c) 2001, 2002, 2008, 2010 Tama Communications Corporation
 #
 # This file is part of GNU GLOBAL.
 #
@@ -32,8 +32,6 @@
 #	:perl tag qw(-P file)		global -Px file
 #	:perl tag qw(-f %)		global -fx <current file>
 #	:perl gozilla			gozilla +<current line> <current file>
-#
-# Please type ':perl help[ENTER]' for help.
 #
 # Suggested .nexrc: (If you have gtags.pl in ${HOME}/perl.)
 #
@@ -120,10 +118,6 @@ sub main::tag {
 	}
         shift;
     }
-    if ($flag =~ /r/ && $flag =~ /s/) {
-        $curscr->Msg("both of -s and -r are not allowed.");
-        return;
-    }
     if ($_[0]) {
         $tag = $_[0];
 	#
@@ -159,7 +153,7 @@ sub main::tag {
 	#
 	# make global(1) locate tags based on the context.
 	#
-        $flag = ' --from-here=' . $lineno . ':' . $curscr->GetFileName();
+        $flag = ' --from-here="' . $lineno . ':' . $curscr->GetFileName() . '"';
     }
     #
     # quote tag.
@@ -179,7 +173,7 @@ sub main::tag {
     if ($flag !~ /f/) {
 	$flag .= 'e';
     }
-    $cmd = "$command -xq$flag '$quoted_tag'";
+    $cmd = "$command --encode-path=\" \t\" -xq$flag '$quoted_tag'";
     open(TAGS, "$cmd |");
     $tagq = undef;
     while(<TAGS>) {
@@ -188,7 +182,8 @@ sub main::tag {
 	    if (!$tagq) {
 		$tagq = $curscr->TagQ($tag);
 	    }
-           $tagq->Add($path, $lno, '');
+	    $path =~ s/%([0-9a-f][0-9a-f])/pack("C", hex($1))/eg;
+            $tagq->Add($path, $lno, '');
         }
     } 
     close(TAGS);

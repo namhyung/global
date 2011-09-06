@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
- *		2006, 2008
+ *		2006, 2008, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -355,27 +355,36 @@ put_anchor(char *name, int type, int lineno)
 		strbuf_puts(outbuf, name);
 	} else {
 		/*
-		 * About cache record format, please see the comment in cache.c.
+		 * About the format of 'line', please see the head comment of cache.c.
 		 */
 		if (*line == ' ') {
-			char tmp[MAXPATHLEN];
-			const char *id = strmake(++line, " ");
-			const char *count = locatestring(line, " ", MATCH_FIRST) + 1;
+			const char *fid = line + 1;
+			const char *count = nextstring(fid);
 			const char *dir, *file, *suffix = NULL;
 
 			if (dynamic) {
-				const char *s;
+				STATIC_STRBUF(sb);
 
-				dir = (*action == '/') ? NULL : "..";
+				strbuf_clear(sb);
+				strbuf_puts(sb, action);
+				strbuf_putc(sb, '?');
+				strbuf_puts(sb, "pattern=");
+				strbuf_puts(sb, name);
+				strbuf_puts(sb, quote_amp);
+				if (Sflag) {
+					strbuf_puts(sb, "id=");
+					strbuf_puts(sb, sitekey);
+					strbuf_puts(sb, quote_amp);
+				}
+				strbuf_puts(sb, "type=");
 				if (db == GTAGS)
-					s = "definitions";
+					strbuf_puts(sb, "definitions");
 				else if (db == GRTAGS)
-					s = "reference";
+					strbuf_puts(sb, "reference");
 				else
-					s = "symbol";
-				snprintf(tmp, sizeof(tmp), "%s?pattern=%s%stype=%s",
-					action, name, quote_amp, s);
-				file = tmp;
+					strbuf_puts(sb, "symbol");
+				file = strbuf_value(sb);
+				dir = (*action == '/') ? NULL : "..";
 			} else {
 				if (type == 'R')
 					dir = upperdir(DEFS);
@@ -383,16 +392,18 @@ put_anchor(char *name, int type, int lineno)
 					dir = upperdir(SYMS);
 				else	/* 'D', 'M' or 'T' */
 					dir = upperdir(REFS);
-				file = id;
+				file = fid;
 				suffix = HTML;
 			}
 			strbuf_puts(outbuf, gen_href_begin_with_title(dir, file, suffix, NULL, tooltip(type, -1, count)));
 			strbuf_puts(outbuf, name);
 			strbuf_puts(outbuf, gen_href_end());
 		} else {
-			char lno[32];
-			const char *filename;
+			const char *lno = line;
+			const char *fid = nextstring(line);
+			const char *path = gpath_fid2path(fid, NULL);
 
+			path += 2;              /* remove './' */
 			/*
 			 * Don't make a link which refers to itself.
 			 * Being used only once means that it is a self link.
@@ -401,10 +412,7 @@ put_anchor(char *name, int type, int lineno)
 				strbuf_puts(outbuf, name);
 				return;
 			}
-			strlimcpy(lno, strmake(line, " "), sizeof(lno));
-			filename = strmake(locatestring(line, " ", MATCH_FIRST) + 1, " ")
-						+ 2;	/* remove './' */
-			strbuf_puts(outbuf, gen_href_begin_with_title(upperdir(SRCS), path2fid(filename), HTML, lno, tooltip(type, atoi(lno), filename)));
+			strbuf_puts(outbuf, gen_href_begin_with_title(upperdir(SRCS), fid, HTML, lno, tooltip(type, atoi(lno), path)));
 			strbuf_puts(outbuf, name);
 			strbuf_puts(outbuf, gen_href_end());
 		}
@@ -463,7 +471,7 @@ put_macro(const char *word)
 	strbuf_puts(outbuf, sharp_end);
 }
 /*
- * Print warning message when unkown preprocessing directive is found.
+ * Print warning message when unknown preprocessing directive is found.
  */
 void
 unknown_preprocessing_directive(const char *word, int lineno)
@@ -638,7 +646,7 @@ get_cvs_module(const char *file, const char **basename)
 {
 	const char *p;
 	STATIC_STRBUF(dir);
-	static char prev_dir[MAXPATHLEN+1];
+	static char prev_dir[MAXPATHLEN];
 	STATIC_STRBUF(module);
 	FILE *ip;
 

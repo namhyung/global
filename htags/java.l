@@ -32,7 +32,7 @@
 #include "anchor.h"
 #include "common.h"
 #include "htags.h"
-#include "../gtags-parser/java_res.h"
+#include "../libparser/java_res.h"
 
 #define lex_symbol_generation_rule(x) java_ ## x
 #include "lexcommon.h"

@@ -4,19 +4,17 @@ const char *usage_const = "Usage: gozilla [-b browser][-p][+no] file\n\
        gozilla [-b browser][-p] -d name\n";
 const char *help_const = "Options:\n\
 +no\n\
-       line number. It must be a line on which function definition or\n\
-       function reference is exist.  If you execute htags(1)\n\
-       with -l option, you can specify any line.\n\
+       Line number.\n\
 -b browser\n\
-       browser to use. By default, it is assumed mozilla.\n\
+       Browser to use. By default, it is assumed mozilla.\n\
 -d name\n\
-       print function.\n\
+       Print object definitions.\n\
 --help\n\
        Show help.\n\
 -p\n\
-       just print generated target URL.\n\
+       Print just a generated URL instead of displaying it.\n\
 file\n\
-       path of source file or alias name.\n\
+       File name or alias name.\n\
 -q, --quiet\n\
        Quiet mode.\n\
 -v, --verbose\n\

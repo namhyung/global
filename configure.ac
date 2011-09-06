@@ -2,7 +2,7 @@ dnl
 dnl Configuration script for GLOBAL.
 dnl Process this file with autoconf to produce a configure script.
 dnl
-dnl Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008
+dnl Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010
 dnl	Tama Communications Corporation
 dnl
 dnl This file is part of GNU GLOBAL.
@@ -20,7 +20,7 @@ dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program.  If not, see <http://www.gnu.org/licenses/>.
 dnl
-AC_INIT([GNU GLOBAL],[5.7.6])
+AC_INIT([GNU GLOBAL],[5.9.3])
 AC_CONFIG_SRCDIR(global/global.c)
 AC_CONFIG_HEADERS([config.h:config-h.in])
 AC_PREREQ(2.59)
@@ -44,10 +44,21 @@ AC_CHECK_TOOL(AR, ar)
 
 AC_GNU_SOURCE
 
+LT_PREREQ([2.2.6b])
+LT_CONFIG_LTDL_DIR([libltdl])
+dnl
+dnl Because autoreconf up to version 2.59 doesn't know LT_INIT,
+dnl we use the old name AC_PROG_LIBTOOL.
+dnl
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+LTDL_INIT([recursive])
+
 dnl Checks for libraries.
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(limits.h string.h unistd.h stdarg.h sys/time.h fcntl.h)
+AC_CHECK_HEADERS(sys/resource.h)
 AC_HEADER_DIRENT
 if test ${ac_header_dirent} = no; then
         AC_MSG_ERROR([dirent(3) is required but not found.])
@@ -99,10 +110,11 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(getcwd putenv lstat snprintf)
 AC_CHECK_FUNCS(index rindex bzero bcmp bcopy strchr strrchr memset memcmp memmove)
 AC_CHECK_FUNCS(putc_unlocked getc_unlocked)
+AC_CHECK_FUNCS(gettimeofday getrusage)
 AG_DJGPP
 
-INCLUDES='-I$(top_srcdir)/libutil -I$(top_srcdir)/libdb -I$(top_srcdir)/libglibc -I../libutil'
-LDADD='../libutil/libgloutil.a ../libdb/libglodb.a ../libglibc/libgloglibc.a'
+INCLUDES='-I$(top_srcdir)/libparser $(LTDLINCL) -I$(top_srcdir)/libutil -I$(top_srcdir)/libdb -I$(top_srcdir)/libglibc -I../libutil'
+DBLIBRARY='../libdb/libglodb.a'
 
 dnl
 dnl This option is for debugging GLOBAL. Not for normal use.
@@ -125,11 +137,13 @@ AC_ARG_WITH(db185-compat,
 			LDFLAGS="$LDFLAGS -L$withval/lib"
 			;;
 		esac
-		LDADD='../libutil/libgloutil.a -ldb ../libglibc/libgloglibc.a'
+		DBLIBRARY='-ldb'
 		AC_DEFINE(USE_DB185_COMPAT,1,[Define if you use DB1.85 compatible API.])
 	fi
 ],[ with_db185_compat='no' ])
 AM_CONDITIONAL([USE_DB185_COMPAT], [test "$with_db185_compat" != no])
+
+LDADD='../libparser/libgloparser.a ../libutil/libgloutil.a '$DBLIBRARY' ../libglibc/libgloglibc.a'
 
 dnl
 dnl for home-etc support
@@ -178,6 +192,30 @@ AC_ARG_WITH(pread-pwrite,
         AC_MSG_RESULT(no)
 ])
 
+dnl
+dnl for gtags.conf and function layer plugin parser sample.
+dnl
+AC_MSG_CHECKING(for exuberant ctags program)
+AC_ARG_WITH(exuberant-ctags,
+[  --with-exuberant-ctags=PROGRAM  specify Exuberant Ctags program ],
+[ EXUBERANT_CTAGS="$withval" ],
+[ EXUBERANT_CTAGS=/usr/local/bin/ctags-exuberant ])
+AC_DEFINE_UNQUOTED(EXUBERANT_CTAGS, "$EXUBERANT_CTAGS", [Exuberant Ctags program.])
+AC_MSG_RESULT("$EXUBERANT_CTAGS")
+AC_SUBST(EXUBERANT_CTAGS)
+
+dnl
+dnl for POSIX sort program. By default, "/usr/bin/sort" is used.
+dnl
+AC_MSG_CHECKING(for POSIX sort program)
+AC_ARG_WITH(posix-sort,
+[  --with-posix-sort=PROGRAM  specify POSIX sort program ],
+[ POSIX_SORT="$withval" ],
+[ POSIX_SORT=/usr/bin/sort ])
+AC_DEFINE_UNQUOTED(POSIX_SORT, "$POSIX_SORT", [POSIX sort program.])
+AC_MSG_RESULT("$POSIX_SORT")
+AC_SUBST(POSIX_SORT)
+
 AC_SUBST(INCLUDES)
 AC_SUBST(LDADD)
 AC_SUBST(LDFLAGS)
@@ -203,17 +241,23 @@ AC_CONFIG_FILES([Makefile
 	gtags.conf
 	libutil/langmap.h
 	htags/global.cgi.tmpl
+	htags/completion.cgi.tmpl
 	libutil/Makefile
 	gtags/Makefile
 	htags/Makefile
-	gtags-parser/Makefile
 	libdb/Makefile
 	global/Makefile
 	gozilla/Makefile
 	gtags-cscope/Makefile
+	globash/Makefile
 	htags-refkit/Makefile
 	libglibc/Makefile
 	doc/Makefile
 	icons/Makefile
+	jquery/Makefile
+	jquery/images/Makefile
+	libparser/Makefile
+	plugin-example/Makefile
+	libltdl/Makefile
 ])
 AC_OUTPUT

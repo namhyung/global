@@ -10,15 +10,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-SUBDIRS = libglibc libutil
+SUBDIRS = libglibc libutil libparser libltdl plugin-example
 if !USE_DB185_COMPAT
         SUBDIRS += libdb
 endif
-SUBDIRS += gtags-parser global gozilla gtags htags htags-refkit gtags-cscope doc icons
+SUBDIRS += global gozilla gtags htags htags-refkit gtags-cscope globash \
+	doc icons jquery jquery/images
 
 gtagsdir = ${datadir}/gtags
 gtags_DATA = AUTHORS COPYING ChangeLog FAQ INSTALL LICENSE NEWS README THANKS \
-        globash.rc gtags.conf gtags.el gtags.pl gtags.vim \
+        gtags.conf gtags.el gtags.pl gtags.vim gtags-cscope.vim \
 	BOKIN_MODEL BOKIN_MODEL_FAQ DONORS
 
 EXTRA_DIST = ${gtags_DATA} reconf.sh convert.pl

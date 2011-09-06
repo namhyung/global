@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Tama Communications Corporation
+ * Copyright (c) 2004, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -21,6 +21,7 @@
 
 void load_gpath(const char *);
 const char *path2fid(const char *);
+const char *path2fid_readonly(const char *);
 void unload_gpath(void);
 
 #endif /* ! _GPATH_H_ */

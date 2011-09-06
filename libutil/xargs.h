@@ -72,7 +72,7 @@ typedef struct {
 	 * XARGS_ARGV
 	 */
 	int argc;
-	char **argv;
+	char *const *argv;
 	/*
 	 * XARGS_STRBUF
 	 */
@@ -84,7 +84,7 @@ typedef struct {
 } XARGS;
 
 XARGS *xargs_open_with_file(const char *, int, FILE *);
-XARGS *xargs_open_with_argv(const char *, int, int, char **);
+XARGS *xargs_open_with_argv(const char *, int, int, char *const *);
 XARGS *xargs_open_with_strbuf(const char *, int, STRBUF *);
 XARGS *xargs_open_with_find(const char *, int);
 char *xargs_read(XARGS *);

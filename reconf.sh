@@ -26,7 +26,7 @@ case $1 in
 	exit 0;;
 esac
 prog='autoreconf flex gperf perl bison'	# required programs
-file='convert.pl configure.ac Makefile.am gtags-parser/reserved.pl'	# required files
+file='convert.pl configure.ac Makefile.am libparser/reserved.pl'	# required files
 
 echo "- File existent checking..."
 for f in `echo $file`; do
@@ -62,7 +62,7 @@ done
 # flex, bison and gperf.
 #
 echo "- Preparing parser source ..."
-(cd gtags-parser; set -x
+(cd libparser; set -x
 for lang in c cpp java php asm; do
 	name=${lang}_res
 	perl ./reserved.pl --prefix=$lang ${lang}_res.in > ${name}.gpf
@@ -86,7 +86,7 @@ done
 )
 
 echo "- Collecting reference manuals ..."
-commands="global gtags htags gtags-parser gozilla gtags-cscope";
+commands="global gtags htags gozilla gtags-cscope globash";
 perl ./convert.pl --menu $commands > doc/reference.texi
 for d in `echo $commands`; do
 	perl ./convert.pl --info $d/manual.in > doc/$d.ref

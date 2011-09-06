@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2005 Tama Communications Corporation
+ * Copyright (c) 2002, 2005, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -31,8 +31,11 @@ typedef struct {
 	} part[NPART];
 } SPLIT;
 
-int split(char *, int, SPLIT *);
+int split(const char *, int, SPLIT *);
 void recover(SPLIT *);
 void split_dump(SPLIT *);
+const char *parse_xid(const char *, char *, int *);
+const char *nextstring(const char *);
+const char *nextelement(const char *);
 
 #endif /* ! _SPLIT_H_ */

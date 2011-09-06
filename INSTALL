@@ -99,12 +99,13 @@ o Elvis
 
 o Vim
 
-   You can get them at:
+   You can get it at:
 
 	http://www.vim.org/
 
-   Please copy gtags.vim file to your plug-in directory.
+   Please copy vim scripts to your plug-in directory.
 
 	$ cp /usr/local/share/gtags/gtags.vim $HOME/.vim/plugin
+	$ cp /usr/local/share/gtags/gtags-cscope.vim $HOME/.vim/plugin
 
 Good luck!

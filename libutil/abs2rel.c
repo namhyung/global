@@ -182,7 +182,7 @@ EXAMPLE
 char *
 normalize(const char *path, const char *root, const char *cwd, char *result, const int size)
 {
-	char *p, abs[MAXPATHLEN+1];
+	char *p, abs[MAXPATHLEN];
 
 	if (normalize_pathname(path, result, size) == NULL)
 		goto toolong;

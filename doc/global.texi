@@ -20,7 +20,7 @@
 @ifinfo
 This file documents the GNU GLOBAL source code tag system.
 
-Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010
 Tama Communications Corporation
 
 Permission is granted to copy, distribute and/or modify this document
@@ -40,7 +40,7 @@ Free Documentation License".
 @c copyright page
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008
+Copyright @copyright{} 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2010
 Tama Communications Corporation
 @sp 2
 This manual is for @acronym{GNU} GLOBAL (version @value{VERSION},
@@ -158,6 +158,10 @@ It is a big merit of GLOBAL compared with any other tag systems.
 @node   Preparation
 @section Preparation
 
+Before beginning, please read the FAQ (Frequently Asked Questions) file.
+
+    $ more /usr/local/share/gtags/FAQ
+
 First of all, you must execute gtags(1)(@pxref{gtags}) at the root of source tree.
 For example, if you want to browse the source code of Vi editor in FreeBSD,
 please move to the source directory and invoke gtags(1).
@@ -176,7 +180,7 @@ After this, the whole files under this directory is treated as a project.
 @example
 
     $ ls G*
-    GPATH   GRTAGS  GSYMS   GTAGS
+    GPATH   GRTAGS  GTAGS
 
 @end example
 
@@ -185,26 +189,21 @@ After this, the whole files under this directory is treated as a project.
         definition database
 @item @file{GRTAGS}
         reference database
-@item @file{GSYMS}
-        symbol database
 @item @file{GPATH}
         path name database
 @end itemize
 
-The @file{GSYMS} is for the symbols which are not defined in @file{GTAGS}.
-
 You should prepare for considerable disk space for the tag files.
-For example, FreeBSD 7.0 kernel source code requires the following disk space.
+For example, Linux-2.6.32 source code requires the following disk space.
 
 @example
-    source code(/usr/src/sys)       123MB
+    source code(Linux-2.6.32)       390MB
 
-    GPATH                             1MB
-    GTAGS                            26MB
-    GRTAGS                           22MB
-    GSYMS                            23MB
+    GPATH                             6MB
+    GTAGS                            81MB
+    GRTAGS                          202MB
     -------------------------------------
-    total of tag files               72MB
+    total of tag files              289MB
 @end example
 
 @c ***************************************************************************
@@ -642,14 +641,21 @@ Yoo can manage a directory list by cookie facility.
 @subsection Preparation
 
 First, do the preparation of global. @xref{Preparation}.
-And you can invoke Bash(1) with @samp{--rcfile} option.
+And you can invoke globash(1) command.
 @example
 
-    $ bash --rcfile /usr/local/share/gtags/globash.rc
+    $ globash
 
 @end example
 
-You will see a prompt like this:
+Only first time, you will see the following message.
+
+@example
+    GloBash needs a working directory. Do you create '/home/you/.globash'? ([y]/n)
+@end example
+
+Inputing the ENTER key, you will see a prompt like this:
+
 @example
 
     [/usr/src/sys]/kern _
@@ -901,7 +907,7 @@ then please specify the tag file explicitly like this:
 
 @end example
 
-In the same way, you can use @file{GTAGS}, @file{GRTAGS}, @file{GSYMS},
+In the same way, you can use @file{GTAGS}, @file{GRTAGS},
 @file{GPATH} as tag files.
 
 @item If a number of objects are located, Less goes to the first tag.
@@ -1787,18 +1793,14 @@ You can use GLOBAL's facilities from web browsers.
 @subsection Preparation
 
 At first, you must ensure that you have a lot of disk space for hypertext.
-For example, FreeBSD 7.0 kernel source code (123MB) requires disk space
-from 600 to 1200MB.
-
+For example, Linux-2.6.32 source code (390MB) requires 4-6 G byte of disk space.
 @example
 
-    source code(/usr/src/sys)            123MB
-    GPATH,GTAGS,GRTAGS,GSYMS              72MB
+    source code(Linux-2.6.32)            390MB
+    GPATH,GTAGS,GRTAGS                   289MB
 
-    hypertext (with no option)           645MB
-    hypertext (with -s option)          1168MB
-    hypertext (with -D option)           383MB
-    hypertext (with -s and -D option)    616MB
+    hypertext (with no option)           3.8GB
+    hypertext (with --suggest option)    5.7GB
    
 @end example
 
@@ -1808,7 +1810,7 @@ in order like this:
 @example
 
     (at the root directory of your source project)
-    $ gtags                 # @r{make tag files(GTAGS,GRTAGS,GSYMS)}
+    $ gtags                 # @r{make tag files(GPATH,GTAGS,GRTAGS)}
     $ htags                 # @r{make hypertext(HTML/)}
 
 @end example
@@ -1930,86 +1932,9 @@ About the capabilities, please see each command manual. @xref{Reference}.
 
 You can write new parser for gtags(1).
 
-@subsection How to plug in a parser
-
-Copy @file{gtags.conf} to @file{/etc/gtags.conf} or @file{$HOME/.globalrc}.
-
-If you would like to use exuberant ctags included by Vim editor,
-
-@example
-
-    $ cd /@var{vim source directory}/src/ctags
-    $ cp Makefile.unix Makefile
-    $ make
-    # cp ctags /usr/local/bin/ctags-exuberant
-    $ export GTAGSLABEL=ctags-exuberant     # @r{see gtags.conf}
-    $ gtags
-    $ ls G*
-    GPATH   GTAGS
-
-@end example
-
-@file{GRTAGS} and @file{GSYMS} don't exist, simply because
-these parsers don't support the @samp{-r} option and @samp{-s} option like gtags-parser(1) does.
-If you prepare the parser which support both option, you can use all functions of global(1).
-@opindex -r
-@opindex -s
-
-@subsection Requirement of plug-in parser
-
-Plug-in parser must print tag information to standard output
-in the same style as @code{ctags -x}, ie.:
-
-@example
-
-    [1]    [2] [3]          [4]
-    ------------------------------------------------------------------
-    main    20 ./main.c     main(argc, argv)        /* xxx */
-    
-    [1] tag name
-    [2] line number the tag appeared
-    [3] path name. It must be equal to argument path name.
-    [4] line image
-
-@end example
-
-Plug-in parser must process the files in the order they are given
-in the argument. In each file, any order is acceptable.
-
-@itemize @bullet
-@item Good example
-
-The following @code{good-prog} does correct operation as a plug-in parser.
-
-@example
-        $ good-prog a.c b.c        @r{<= order: a.c -> b.c}
-                    ~~~~~~~
-        main          25 a.c  main(int argc, char *argv[])
-        func          45 a.c  func(int a) @{
-        sub2          20 b.c  sub2() @{
-        sub1          10 b.c  sub1() @{
-                          ^
-                          |
-                         @r{*** order: a.c -> b.c (Good!)}
-
-@end example
-
-@item Bad example
-
-The following @code{bad-prog} does wrong operation as a plug-in parser.
-
-@example
-        $ bad-prog a.c b.c        @r{<= order: a.c -> b.c}
-        main          25 a.c  main(int argc, char *argv[])
-        sub2          20 b.c  sub2() @{
-        sub1          10 b.c  sub1() @{
-        func          45 a.c  func(int a) @{
-                          ^
-                          |
-                         @r{*** order: b.c -> a.c (BAD)}
-
-@end example
-@end itemize
+Command layer plug-in parser was abolished.
+Please write function layer plug-in parser instead.
+See @file{plugin-example/} to know function layer plug-in parser.
 
 @c ***************************************************************************
 @node   Incremental updating
@@ -2021,31 +1946,26 @@ Instead, you can use incremental updating facility (@samp{-u} option).
 @example
 
     $ gtags
-    $ cd kern
-    $ vi tty.c                              # @r{modify tty.c}
+    $ cd kernel
+    $ vi user.c                             # @r{modify user.c}
     ...
     :wq
     $ global -vu                            # @r{-v means verbose}
-    [Sun Dec  6 16:27:47 JST 1998] Gtags started
-     Tag found in '/usr/src/sys'.
-     Incremental update.
-    [Sun Dec  6 16:28:48 JST 1998] Updating 'GTAGS'.
-     [1/1] deleting tags of kern/tty.c
-     [1/1] adding tags of kern/tty.c
-    [Sun Dec  6 16:28:59 JST 1998] Updating 'GRTAGS'.
-     [1/1] deleting tags of kern/tty.c
-     [1/1] adding tags of kern/tty.c
-    [Sun Dec  6 16:28:14 JST 1998] Updating 'GSYMS'.
-     [1/1] deleting tags of kern/tty.c
-     [1/1] adding tags of kern/tty.c
+    [Sat May 29 00:31:41 JST 2010] Gtags started.
+     Tag found in '/usr/local/src/linux-2.6.32'.
+     Incremental updating.
+    [Sat May 29 00:31:43 JST 2010] Updating 'GTAGS' and 'GRTAGS'.
+     [1/1] deleting tags of kernel/user.c
+     [1/1] extracting tags of kernel/user.c
      Global databases have been modified.
-    [Sun Dec  6 16:28:30 JST 1998] Done.
+    [Sat May 29 00:31:51 JST 2010] Done.
+
     $ global -vu                            # @r{try again}
-    [Sun Dec  6 16:28:48 JST 1998] Gtags started
-     Tag found in '/usr/src/sys'.
-     Incremental update.
+    [Sat May 29 00:33:16 JST 2010] Gtags started.
+     Tag found in '/usr/local/src/linux-2.6.32'.
+     Incremental updating.
      Global databases are up to date.       # @r{do nothing}
-    [Sun Dec  6 16:28:52 JST 1998] Done.
+    [Sat May 29 00:33:19 JST 2010] Done.
 
 @end example
 

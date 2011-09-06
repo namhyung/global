@@ -509,7 +509,7 @@ char *yytext;
 #include "incop.h"
 #include "common.h"
 #include "htags.h"
-#include "../gtags-parser/c_res.h"
+#include "../libparser/c_res.h"
 
 #define lex_symbol_generation_rule(x) c_ ## x
 #include "lexcommon.h"
@@ -873,7 +873,7 @@ YY_RULE_SETUP
 		if (c == '\n') {
 			unput(c);
 		} else if (c) {
-			char path[MAXPATHLEN+1], *p = path;
+			char path[MAXPATHLEN], *p = path;
 			int sep = 0;
 
 			if (c == '"')

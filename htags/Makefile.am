@@ -1,6 +1,6 @@
 ## Process this file with automake to create Makefile.in
 #
-# Copyright (c) 2000, 2001, 2003, 2004 Tama Communications Corporation
+# Copyright (c) 2000, 2001, 2003, 2004, 2010 Tama Communications Corporation
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,7 +12,7 @@
 #
 bin_PROGRAMS= htags
 
-htags_SOURCES = htags.c defineindex.c dupindex.c fileindex.c src2html.c \
+htags_SOURCES = htags.c defineindex.c dupindex.c fileindex.c cflowindex.c src2html.c \
 		anchor.c cache.c common.c incop.c assoc.c path2url.c \
 		c.c cpp.c java.c php.c asm.c
 
@@ -28,7 +28,13 @@ htags_DEPENDENCIES = $(LDADD)
 man_MANS = htags.1
 
 gtagsdir = ${datadir}/gtags
-gtags_DATA = global.cgi.tmpl ghtml.cgi.tmpl bless.sh.tmpl style.css
-
-EXTRA_DIST = $(man_MANS) ${gtags_DATA} manual.in global.cgi.tmpl.in ghtml.cgi.tmpl \
-	const.h c.l cpp.l java.l php.l asm.l
+gtags_DATA = global.cgi.tmpl ghtml.cgi.tmpl completion.cgi.tmpl bless.sh.tmpl \
+	jscode_suggest.tmpl jscode_treeview.tmpl style.css.tmpl
+EXTRA_DIST = $(man_MANS) $(gtags_DATA) manual.in global.cgi.tmpl.in completion.cgi.tmpl.in \
+		const.h c.l cpp.l java.l php.l asm.l
+install-data-hook:
+	dir="$(DESTDIR)$(localstatedir)/gtags/sitekeys"; \
+	if [ ! -d $$dir ]; then \
+		$(MKDIR_P) $$dir; \
+		chmod 755 $$dir; \
+	fi

@@ -8,7 +8,7 @@ ___________________________________
 GNU GLOBAL source code tag system is covered by the followings:
 
     Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-	2006, 2007, 2008 Tama Communications Corporation
+	2006, 2007, 2008, 2009, 2010 Tama Communications Corporation
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,6 +23,12 @@ GNU GLOBAL source code tag system is covered by the followings:
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+The Output results by htags command.
+
+    Tama Communications Corporation doesn't insist on the copyright to
+    the output results by htags command. But they might contain another
+    person's products (like jquery.js and plugins for it).
+
 Htags Hyper-text Reference Kit (htags_path2url.c):
 
     This file is placed into the public domain by the author,
@@ -30,22 +36,23 @@ Htags Hyper-text Reference Kit (htags_path2url.c):
 
 Getopt for GNU (getopt.c getopt.h getopt1.c):
 
-    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95
+    Copyright (C) 1987-1996,1998-2004,2008
          Free Software Foundation, Inc.
 
-    This program is free software; you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by the
-    Free Software Foundation; either version 2, or (at your option) any
-    later version.
+    The GNU C Library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
+    The GNU C Library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA.
+    You should have received a copy of the GNU Lesser General Public
+    License along with the GNU C Library; if not, write to the Free
+    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+    02111-1307 USA.
 
 REGEX library:
      Extended regular expression matching and search library,
@@ -67,7 +74,7 @@ REGEX library:
      You should have received a copy of the GNU Library General Public
      License along with the GNU C Library; see the file COPYING.LIB.  If not,
      write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-     Boston, MA  02110-1301  USA  */
+     Boston, MA  02110-1301  USA
 
 DB library:
 
@@ -139,3 +146,32 @@ Icon file by Tama Communications Corporation (icons/pglobe.png).
 
     This file is placed into the public domain by the author,
     2006 Tama Communications Corporation.
+
+jquery and plugins by the following people.
+
+    [jquery/jquery.js]
+
+    jQuery JavaScript Library v1.4.2
+    Copyright 2010, John Resig
+    Dual licensed under the MIT or GPL Version 2 licenses.
+    http://jquery.org/license
+
+    Includes Sizzle.js
+    http://sizzlejs.com/
+    Copyright 2010, The Dojo Foundation
+    Released under the MIT, BSD, and GPL Licenses.
+
+    [jquery/jquery.suggest.js, htags/jquery.suggest.css]
+
+    jquery.suggest 1.1 - 2007-08-06 by by Peter Vulgaris
+    Based on autocomplete,js by Joern Zaefferer and
+    iautocompleter.js by Stefan Petre.
+    Dual licensed under the MIT and GPL licenses.
+
+    A little modification by Tama Communications Corporation
+    was put on the public domain.
+
+    [jquery/jquery.treeview.js, htags/jquery.treeview.css]
+
+    Copyright (c) 2007 Joern Zaefferer
+    Dual licensed under the MIT and GPL licenses:

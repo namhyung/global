@@ -21,6 +21,10 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "compress.h"
 #include "die.h"
 #include "gtagsop.h"
@@ -136,6 +140,10 @@ abbrev_dump(void)
 	struct abbrmap *ab;
 	int i, limit = sizeof(ab2name) / sizeof(struct abbrmap);
 
+	if (!name2ab) {
+		fprintf(stderr, "name2ab is NULL.\n");
+		return;
+	}
 	fprintf(stderr, "ab2name: %d entries\n", limit);
 	for (i = 0; i < limit; i++) {
 		if (ab2name[i].c != 0) {
@@ -195,7 +203,7 @@ compress(const char *in, const char *name)
 		} else if (!strncmp(p, name, length)) {
 			strbuf_puts(sb, "@n");
 			p += length;
-		} else {
+		} else if (name2ab) {
 			int i, limit = name2ab->length;
 			struct abbrmap *ab = (struct abbrmap *)varray_assign(name2ab, 0, 0);
 
@@ -211,6 +219,9 @@ compress(const char *in, const char *name)
 				strbuf_putc(sb, *p);
 				p++;
 			}
+		} else {
+			strbuf_putc(sb, *p);
+			p++;
 		}
 	}
 	if (spaces > 0) {

@@ -34,8 +34,8 @@
 typedef struct {
 	int type;
 	FILE *fp;
-	char command[MAXFILLEN+1];
-	char path[MAXPATHLEN+1];
+	char command[MAXFILLEN];
+	char path[MAXPATHLEN];
 } FILEOP;
 
 FILEOP *open_input_file(const char *);

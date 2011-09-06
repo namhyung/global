@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007
+ * Copyright (c) 1997, 1998, 1999, 2000, 2001, 2005, 2006, 2007, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -20,8 +20,8 @@
 
 #ifndef _GTOP_H_
 #define _GTOP_H_
+
 #include <stdio.h>
-#include <ctype.h>
 
 #include "gparam.h"
 #include "dbop.h"
@@ -73,13 +73,14 @@ typedef struct {
 
 typedef struct {
 	DBOP *dbop;			/* descripter of DBOP */
+	DBOP *gtags;			/* descripter of GTAGS */
 	int format_version;		/* format version */
 	int format;			/* GTAGS_COMPACT, GTAGS_COMPRESS */
 	int mode;			/* mode */
 	int db;				/* 0:GTAGS, 1:GRTAGS, 2:GSYMS */
 	int openflags;			/* flags value of gtags_open() */
 	int flags;			/* flags */
-	char root[MAXPATHLEN+1];	/* root directory of source tree */
+	char root[MAXPATHLEN];	/* root directory of source tree */
 	/*
 	 * Stuff for GTOP_PATH.
 	 */
@@ -95,21 +96,20 @@ typedef struct {
 	GTP gtp;
 	POOL *segment_pool;
 	VARRAY *vb;
-	char cur_tagname[IDENTLEN+1];	/* current tag name */
+	char cur_tagname[IDENTLEN];	/* current tag name */
 	/*
 	 * Stuff for compact format
 	 */
-	char cur_path[MAXPATHLEN+1];	/* current path */
+	char cur_path[MAXPATHLEN];	/* current path */
 	STRBUF *sb;			/* string buffer */
-	FILE *fp;			/* descriptor of 'path' */
 	/* used for compact format and path name only read */
 	STRHASH *path_hash;
-
 } GTOP;
 
 const char *dbname(int);
 GTOP *gtags_open(const char *, const char *, int, int, int);
-void gtags_put(GTOP *, const char *, const char *);
+void gtags_put_using(GTOP *, const char *, int, const char *, const char *);
+void gtags_flush(GTOP *, const char *);
 void gtags_delete(GTOP *, IDSET *);
 GTP *gtags_first(GTOP *, const char *, int);
 GTP *gtags_next(GTOP *);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2002, 2005, 2006
+ * Copyright (c) 1997, 1998, 1999, 2000, 2002, 2005, 2006, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -117,6 +117,7 @@ void strbuf_clear(STRBUF *);
 void strbuf_nputs(STRBUF *, const char *, int);
 void strbuf_nputc(STRBUF *, int, int);
 void strbuf_puts(STRBUF *, const char *);
+void strbuf_puts_withterm(STRBUF *, const char *, int);
 void strbuf_puts_nl(STRBUF *, const char *);
 void strbuf_putn(STRBUF *, int);
 int strbuf_unputc(STRBUF *, int);
@@ -124,8 +125,10 @@ char *strbuf_value(STRBUF *);
 void strbuf_trim(STRBUF *);
 void strbuf_close(STRBUF *);
 char *strbuf_fgets(STRBUF *, FILE *, int);
-void strbuf_sprintf(STRBUF *sb, const char *s, ...)
+void strbuf_sprintf(STRBUF *, const char *, ...)
 	__attribute__ ((__format__ (__printf__, 2, 3)));
+void strbuf_vsprintf(STRBUF *, const char *, va_list)
+	__attribute__ ((__format__ (__printf__, 2, 0)));
 STRBUF *strbuf_open_tempbuf(void);
 void strbuf_release_tempbuf(STRBUF *);
 

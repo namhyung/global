@@ -4,7 +4,7 @@ ___________________________________
 |  |   |  |  |  |  |     |     |  |
 |  ~~  |   ~~|     |  ~  |  |  |   ~~|          for all hackers.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
 	Tama Communications Corporation
 
  This file is free software; as a special exception the author gives
@@ -18,6 +18,152 @@ ___________________________________
 		----------------------------------
 
 ChangeLog about GNU GLOBAL
+
+August 30 2010, Shigio YAMAGUCHI
+
+	Renamed the style sheet file in the source package from style.css to
+	style.css.tmpl, because to follow the custom of naming of other templates.
+
+August 12 2010, Shigio YAMAGUCHI
+
+	Modification of the -S option.
+
+	o Renamed from '-S(--secure-cgi)' to '--system-cgi' because the
+	  parameter is changed.
+	o Changed the site key directory from 'datadir' to 'localstatedir'
+	  because 'datadir' is for read-only data.
+	o Changed the permission of the site key directory from 773 to 775.
+
+June 27 2010, Shigo YAMAGUCHI
+
+	Modification of the -S option.
+
+	1. New htags requires a unique key as the parameter of the -S option.
+	   (It is a incompatible change.)
+	2. Htags makes a file whose name is the key in shared area, and
+	   put the path of the HTML directory in it.
+	3. To make the file name unique, a key that already exists
+	   is not allowed without --over-write option.
+
+	[in /var/src]
+	$ htags ... -S key1
+		       ====
+			 |
+			 +----------------+-----+
+					  v     |               
+	[/usr/local/share/gtags/sitekeys/key1]  |
+	+--------------------------------       |
+	|/var/src/HTML                          |     ... (2)
+						|
+	[/var/src/HTML/index.html]              |
+	+--------------------------------       |
+	|...                                    v
+	|<input type='hidden' name='id' value='key1'> ... (1)
+					       ====
+
+	The center CGI script can know the path of the HTML directory by the following
+	method.
+
+	(1) get a unique key from the variable 'id'
+		=> 'key1'
+	(2) read directory name from '/usr/local/share/gtags/sitekeys/' + 'key1'
+		=> '/var/src/HTML'
+
+	This mechanism conceals the real path name of the HTML directory.
+
+May 21 2010, Shigo YAMAGUCHI
+
+	* Removed support for command layer plug-in parser(gtags-parser/).
+
+May 20 2010, Shigo YAMAGUCHI
+
+	* Changed the architecture of gtags(1) from 2 pass to 1 pass.
+
+	[Current]
+
+        Pass 1:                      +-------+ 
+          source files =============>| gtags |============> GTAGS
+                                     |       |============> GPATH
+                                     |       |============> temporary file
+                                     +-------+
+        Pass 2:                      +-------+
+         temporary file ============>| gtags |============> GRTAGS
+                  GTAGS ============>|       |============> GSYMS
+                                     +-------+
+	[New]
+
+        Pass 1:                      +-------+
+          source files =============>| gtags |============> GPATH
+                                     |       |==>[sort]===> GTAGS
+                                     |       |==>[sort]===> GRTAGS
+                                     +-------+
+	(1) 1 pass architecture
+		GLOBAL doesn't use GSYMS any longer. Symbols stored there before are
+		put into GRTAGS instead. The divergence to GRTAGS and GSYMS is done
+		in referring stage (gtags_first() and gtags_next()) not in generating
+		stage. This change removes complexity from the program very much.
+	 
+	(2) Sorted writing
+		The (1) brings a big GRTAGS and decrease at the writing speed.
+		To avoid it, the records written to tag files are sorted beforehand.
+		This function becomes effective if DBOP_SORTED_WRITE flag is specified
+		for function dbop_open(). It uses an external POSIX sort program.
+
+	Note: In the new method, temporary file doesn't become unnecessary.
+	Because the external sort program also uses temporary files for its job.
+
+April 27 2010, Shigo YAMAGUCHI
+
+	* Changed the cache format (htags/cache.c) like follows:
+
+	(1) Duplicate tag file
+	     +--------------------+           +---------------------+
+	     | <fid> <frequency>\0|        -> | <fid>\0<frequency>\0|
+	     +--------------------+           +---------------------+
+						'D/<fid>.html'
+	(2) Tag definition
+	     +---------------------------+    +----------------------+
+	     |<line number> <file name>\0| -> |<line number>\0<fid>\0|
+	     +---------------------------+    +----------------------+
+						'S/<fid>.html#<line number>'
+
+March 8 2010, Shigio YAMAGUCHI
+
+	* Changed the default parser of gtags(1) from gtags-parser(1) to libgloparser.a.
+	  Config parameter 'use_builtin_parser' is not used any longer. If the config
+	  variable GTAGS is defined then gtags(1) use the command layer parser specified
+	  by the variable as well as before. But it is obsolete.
+
+February 27 2010, Hideki IWAMOTO
+
+	* Added support of function layer plugin parser.
+	  Libtool 2.2.6b or later is required to build CVS version.
+
+February 3 2010, Shigio YAMAGUCHI
+
+	* Use invisible temporary files instead of visible files (htags/assoc.c).
+
+February 1 2010, Hideki IWAMOTO
+
+	* Added built-in parser to improve the performance of making tag files.
+
+	  When the built-in parser is used, the source files are parsed only once. 
+	  The candidate of reference and other symbols are written to the temporary
+	  file in Pass1, and read in Pass2.
+
+	Pass 1:
+	                             +-------+ 
+	  source files =============>| gtags |============> GTAGS
+	                             |       |============> GPATH
+	                             |       | tag record
+	                             |       |============> temporary file
+	                             +-------+
+	Pass 2:
+	                 tag record  +-------+
+	 temporary file ============>| gtags |============> GRTAGS
+	                             |       |
+	          GTAGS ============>|       |============> GSYMS
+	                             +-------+
 
 February 18 2009, Shigio YAMAGUCHI
 

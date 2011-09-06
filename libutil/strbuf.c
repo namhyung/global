@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 1998, 1999, 2000, 2002, 2005, 2006
+ * Copyright (c) 1997, 1998, 1999, 2000, 2002, 2005, 2006, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -212,6 +212,25 @@ strbuf_puts(STRBUF *sb, const char *s)
 	}
 }
 /*
+ * strbuf_puts_withterm: Put string until the terminator
+ *
+ *	i)	sb	string buffer
+ *	i)	s	string
+ *	i)	c	terminator
+ *	r)		pointer to the terminator
+ */
+void
+strbuf_puts_withterm(STRBUF *sb, const char *s, int c)
+{
+	if (!sb->alloc_failed) {
+		while (*s && *s != c) {
+			if (sb->curp >= sb->endp)
+				__strbuf_expandbuf(sb, 0);
+			*sb->curp++ = *s++;
+		}
+	}
+}
+/*
  * strbuf_puts_nl: Put string with a new line
  *
  *	i)	sb	string buffer
@@ -361,6 +380,20 @@ strbuf_sprintf(STRBUF *sb, const char *s, ...)
 	va_list ap;
 
 	va_start(ap, s);
+	strbuf_vsprintf(sb, s, ap);
+	va_end(ap);
+}
+/*
+ * strbuf_vsprintf: do sprintf into string buffer.
+ *
+ *	i)	sb	STRBUF structure
+ *	i)	s	similar to vsprintf()
+ *			Currently the following format is supported.
+ *			%s, %d, %<number>d, %<number>s, %-<number>d, %-<number>s
+ */
+void
+strbuf_vsprintf(STRBUF *sb, const char *s, va_list ap)
+{
 	if (sb->alloc_failed)
 		return;
 	for (; *s; s++) {
@@ -421,7 +454,6 @@ strbuf_sprintf(STRBUF *sb, const char *s, ...)
 			}
 		}
 	}
-	va_end(ap);
 }
 /*
  * strbuf_close: close string buffer.

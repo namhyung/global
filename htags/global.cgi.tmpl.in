@@ -5,27 +5,13 @@
 # How to setup search form of htags
 # =================================
 #
-# You must setup HTTP server so that this script can be executed
-# as a CGI script. This setup depends on the HTTP server which you
-# are using.
+# You should start HTTP server so that this script is executed as a CGI script.
+# Setup procedure for it depends on the HTTP server which you are using.
+# If you are using Apache, 'HTML/.htaccess' might be helpful for you.
 #
-# If you are using Apache HTTP Server [http://httpd.apache.org/],
-# you may set it up by adding an entry to the configuration file
-# [http.conf] like follows:
-#
-# +-----------------------------------------
-# |...
-# |<Directory /usr/local/apache/htdocs/tour> <= depends your environment
-# |    Options +ExecCGI
-# |    AddHandler cgi-script .cgi
-# |</Directory>
-# |...
-# +-----------------------------------------
-#
-# If you are using other systems, please consult the manuals.
 #------------------------------------------------------------------
 #
-# Copyright (c) 1997, 2004, 2006, 2008 Tama Communications Corporation
+# Copyright (c) 1997, 2004, 2006, 2008, 2010 Tama Communications Corporation
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -35,27 +21,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-print "Content-type: text/html\n\n";
-print "@page_begin@\n";
-print "@body_begin@\n";
-$htmlbase = $ENV{'HTTP_REFERER'};
-if (!$htmlbase) {
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Your browser doesn't send HTTP_REFERER.@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
-	exit 0;
+sub header {
+	"Content-type: text/html\n\n" .
+	"@page_begin@\n@body_begin@\n";
 }
-$htmlbase =~ s!/[^\/]+$!!;		# remove file name.
-$htmlbase =~ s!/defines$!!;
-$htmlbase =~ s!/S$!!;
-$htmlbase =~ s!/$!!;
-if (! -x '@globalpath@') {
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Server side command not found. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
-	exit 0;
+sub tailer {
+	"@body_end@\n@page_end@\n";
+}
+sub title {
+	"@title_begin@" . $_[0] . "@title_end@\n";
+}
+sub error {
+	"@error_begin@Error@error_end@\n";
+}
+sub message {
+	"@message_begin@" . $_[0] . "@message_end@\n";
 }
 @pairs = split (/&/, $ENV{'QUERY_STRING'});
 foreach $p (@pairs) {
@@ -64,12 +44,34 @@ foreach $p (@pairs) {
 	$value =~ s/%([\dA-Fa-f][\dA-Fa-f])/pack("C", hex($1))/eg;
 	$form{$name} = $value;
 }
-if ($form{'pattern'} eq '') {
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Pattern not specified. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
+$basedir = "..";
+if ($form{'id'}) {
+	$url = $ENV{'HTTP_REFERER'};
+	if (!$url) {
+		print header();
+		print error();
+		print message("Your browser doesn't send HTTP_REFERER. Please use another one.");
+		print tailer();
+		exit 0;
+	}
+	$basedir = $url;
+	$basedir =~ s!/[^\/]+$!!;		# remove file name.
+	$basedir =~ s!/defines$!!;
+	$basedir =~ s!/S$!!;
+	$basedir =~ s!/$!!;
+}
+sub error_and_exit {
+	print header();
+	print error();
+	print message($_[0] . "<a href='$basedir/mains.@normal_suffix@'>[return]</a>");
+	print tailer();
 	exit 0;
+}
+if (! -x '@globalpath@') {
+	error_and_exit("Server side command not found.");
+}
+if ($form{'pattern'} eq '') {
+	error_and_exit("Pattern not specified.");
 }
 $pattern = $form{'pattern'};
 $flag = '';
@@ -99,22 +101,30 @@ if ($form{'other'} && ($flag eq 'g' || $flag eq 'P')) {
 	$oflag = 'o';
 }
 if ($form{'id'}) {
-	chdir("$form{'id'}/cgi-bin");
-	if ($?) {	
-		print "@error_begin@Error@error_end@\n";
-		print "@message_begin@Couldn't find tag directory in secure mode. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-		print "@body_end@\n";
-		print "@page_end@\n";
-		exit 0;
+	$sitekeys = "@LOCALSTATEDIR@/gtags/sitekeys/" . $form{'id'};
+	if (-f $sitekeys && open(KEY, $sitekeys)) {
+		$distpath = <KEY>;
+		chop($distpath);
+		close(KEY);
+	} else {
+		error_and_exit("Couldn't open unique key file(1).");
+	}
+	chdir("$distpath/cgi-bin");
+	if ($?) {
+		error_and_exit("Couldn't find tag directory in secure mode.");
 	}
 }
-chdir("../..");
-if ($?) {	
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Couldn't change directory for $form{'type'} search. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
-	exit 0;
+$html = (-s "../compress") ? 'ghtml' : 'html';
+if (-f "../GTAGSROOT" && open(GTAGSROOT, "../GTAGSROOT")) {
+	$gtagsroot = <GTAGSROOT>;
+	chop($gtagsroot);
+	close(GTAGSROOT);
+} else {
+	$gtagsroot = "../..";
+}
+chdir($gtagsroot);
+if ($?) {
+	error_and_exit("GTAGSROOT directory not found.");
 }
 #
 # Sanity check
@@ -127,19 +137,12 @@ if (! -f 'GTAGS') {
 	$missed = 'GPATH';
 } elsif ($flag eq 'r' && ! -f 'GRTAGS') {
 	$missed = 'GRTAGS';
-} elsif ($flag eq 's' && ! -f 'GSYMS') {
-	$missed = 'GSYMS';
 } elsif ($flag eq 'I' && ! -f 'ID') {
 	$missed = 'ID';
 }
 if ($missed) {
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Tag file ($missed) not found. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
-	exit 0;
+	error_and_exit("Tag file ($missed) not found.");
 }
-local(%ctab) = ('&', '&amp;', '<', '&lt;', '>', '&gt;');
 #
 # fork and exec global(1) to avoid command substitutions in $pattern.
 # The --result=ctags-xid print the file id of the path at the head
@@ -152,18 +155,37 @@ if ($flags eq '') {
 	open(PIPE, "-|") || exec '@globalpath@', '--result=ctags-xid', '-'.$flags, '-e', $pattern;
 }
 if ($?) {	
-	print "@error_begin@Error@error_end@\n";
-	print "@message_begin@Cannot execute global. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-	print "@body_end@\n";
-	print "@page_end@\n";
+	error_and_exit("Cannot execute global.");
+}
+local(%ctab) = ('&', '&amp;', '<', '&lt;', '>', '&gt;');
+$pattern =~ s/([&<>])/$ctab{$1}/ge;
+local($tag, $lno, $filename);
+if ($line1 = <PIPE>) {
+	push(@line, $line1);
+	if ($line2 = <PIPE>) {
+		push(@line, $line2);
+	}
+}
+sub input {
+	$line = (@line > 0) ? shift @line : <PIPE>;
+	return $line;
+}
+if (@line == 0) {
+	# not found
+	print header();
+	print title($pattern);
+	print message("Pattern not found. <a href='$basedir/mains.@normal_suffix@'>[return]</a>");
+	print tailer();
+	exit 0;
+} elsif (@line == 1) {
+	# direct jump
+	($fid, $tag, $lno, $filename) = split(/[ \t]+/, shift @line);
+	print "Location: $basedir/S/$fid.$html#L$lno\n\n";
 	exit 0;
 }
-$pattern =~ s/([&<>])/$ctab{$1}/ge;
-print "@title_begin@" . $pattern . "@title_end@\n";
+print header();
+print "<h1 class='title'>" . $pattern . "</h1>\n";
 print "Following $words are matched to above pattern.@hr@\n";
-$cnt = 0;
-local($tag, $lno, $filename);
-print "@verbatim_begin@\n";
 #
 # Input format:
 #
@@ -171,20 +193,19 @@ print "@verbatim_begin@\n";
 # ---------------------------------------------
 # 100 main  32 ./main.c main(argc, argv)
 #
-while (<PIPE>) {
-	$cnt++;
+print "@verbatim_begin@\n";
+$count = 0;
+while ($_ = input()) {
+	chop;
+	$count++;
 	($fid, $tag, $lno, $filename) = split;
 	s/^[0-9]+[ \t]+//;
 	s/([&<>])/$ctab{$1}/ge;
-	s!(^[^ \t]+)!<a href='$htmlbase/S/$fid.@HTML@#L$lno'>$1<\/a>!;
-	print;
+	s!(^[^ \t]+)!<a href='$basedir/S/$fid.$html#L$lno'>$1<\/a>!;
+	print "<span class='curline'>$_</span>\n";
 }
-close(PIPE);
 print "@verbatim_end@\n";
-if ($cnt == 0) {
-	print "@message_begin@Pattern not found. <a href='$htmlbase/mains.@normal_suffix@'>[return]</a>@message_end@\n";
-}
-print "@hr@\n";
-print "@body_end@\n";
-print "@page_end@\n";
+close(PIPE);
+print "@hr@$count objects located.\n";
+print tailer();
 exit 0;

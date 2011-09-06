@@ -38,7 +38,7 @@
 #include "common.h"
 #include "incop.h"
 #include "htags.h"
-#include "../gtags-parser/php_res.h"
+#include "../libparser/php_res.h"
 
 #define lex_symbol_generation_rule(x) php_ ## x
 #include "lexcommon.h"
@@ -52,7 +52,7 @@
 #define LEFT_BRACE '('
 
 static int pre_here_document;
-static char end_of_here_document[IDENTLEN+1];
+static char end_of_here_document[IDENTLEN];
 
 %}
  /* Definitions */
@@ -132,7 +132,7 @@ WORD		{ALPHA}{ALPHANUM}*
 		if (c == '\n')
 			unput(c);
 		else if (c) {
-			char path[MAXPATHLEN+1], *p = path;
+			char path[MAXPATHLEN], *p = path;
 			int sep = 0;
 
 			if (c == LEFT_BRACE)
@@ -146,8 +146,8 @@ WORD		{ALPHA}{ALPHANUM}*
 				*p++ = c;
 			*p = '\0';
 			if (c == sep) {
-				char tmp[MAXPATHLEN+1];
-				char normalized_path[MAXPATHLEN+1];
+				char tmp[MAXPATHLEN];
+				char normalized_path[MAXPATHLEN];
 
 				snprintf(tmp, sizeof(tmp), "%s/%s", get_current_dir(), path);
 				/*

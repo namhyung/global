@@ -30,6 +30,7 @@
 #define MAXPROPLEN	1024		/* max length of property	*/
 #define MAXARGLEN	512		/* max length of argument	*/
 #define MAXTOKEN	512		/* max length of token		*/
+#define MAXFIDLEN	32		/* max length of fid		*/
 #ifndef MAXPATHLEN
 #define MAXPATHLEN	1024		/* max length of path		*/
 #endif

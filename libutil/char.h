@@ -24,6 +24,7 @@ extern const unsigned char chartype[256];
 
 #define REGEXCHAR		1
 #define URLCHAR			2
+#define BINARYCHAR		4
 #define test_chartype(c, t)	(chartype[(unsigned char)(c)] & (t))
 
 /* test whether or not regular expression char. */
@@ -31,6 +32,9 @@ extern const unsigned char chartype[256];
 
 /* test whether can be included in URL without escaping. */
 #define isurlchar(c)		test_chartype(c, URLCHAR)
+
+/* test whether or not cahr included in binary file. */
+#define isbinarychar(c)		test_chartype(c, BINARYCHAR)
 
 int isregex(const char *);
 const char *quote_string(const char *);

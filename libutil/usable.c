@@ -57,7 +57,7 @@ usable(const char *command)
 	STRBUF *sb;
 	char *p;
 	const char *dir;
-	static char path[MAXPATHLEN+1];
+	static char path[MAXPATHLEN];
 
 #if defined(_WIN32) || defined(__DJGPP__)
 	int i, lim = sizeof(suffix)/sizeof(char *);

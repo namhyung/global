@@ -1,16 +1,19 @@
 .\" This file is generated automatically by convert.pl from gtags/manual.in.
-.TH GTAGS 1 "September 2009" "GNU Project"
+.TH GTAGS 1 "March 2010" "GNU Project"
 .SH NAME
 gtags \- create tag files for global.
 .SH SYNOPSIS
-\fBgtags\fP [-ciIOqvw][-d \fItag-file\fP][-f \fIfile\fP][-n \fInumber\fP][\fIdbpath\fP]
+\fBgtags\fP [-ciIOqvw][-d \fItag-file\fP][-f \fIfile\fP][\fIdbpath\fP]
 .br
 .SH DESCRIPTION
-\fBGtags\fP recursively collect the source files under
-the current directory,
-pickup symbols and write the cross-reference data into tag files
-(\'GTAGS\', \'GRTAGS\', \'GSYMS\' and \'GPATH\').
-You should execute this command at the root of the source tree.
+\fBGtags\fP is used to create tag files for \fBglobal\fP(1).
+.PP
+\fBGtags\fP recursively collects source files under the current directory,
+pickup symbols and write the cross-reference data into the tag files
+(\'GTAGS\', \'GRTAGS\' and \'GPATH\').
+.PP
+If \'gtags.files\' exists or the \fB-f\fP option is specified,
+target files are limited by it. Lines starts with ". " are comments.
 .PP
 C, C++, yacc, java, PHP and Assembly source files are supported.
 Files whose names end in \'.c\' or \'.h\' are assumed to be
@@ -29,46 +32,38 @@ The following options are available:
 .TP
 \fB-c\fP, \fB--compact\fP
 Make GTAGS in compact format.
-This option does not influence GRTAGS and GSYMS,
+This option does not influence GRTAGS,
 because they are always made in compact format.
 .TP
 \fB--config\fP[=\fIname\fP]
-Show the value of config variable \fIname\fP.
-If \fIname\fP is not specified then show whole of config entry.
+Print the value of config variable \fIname\fP.
+If \fIname\fP is not specified then print all names and values.
 .TP
 \fB-d\fP, \fB--dump\fP \fItag-file\fP
 Dump a tag file. The output format is 'key<tab>data'.
 This is for debugging.
 .TP
 \fB-f\fP, \fB--file\fP \fIfile\fP
-Read from \fIfile\fP a list of file names which should be
-considered as the candidate of source files.
-By default, all files under the current directory are
-considered as the candidate.
-If \fIfile\fP is \'-\', read from standard input.
+Browse through all source files whose names are listed in \fIfile\fP.
+The argument \fIfile\fP can  be set to \'-\' to accept a list of
+files from the standard input.
 File names must be separated by newline.
 .TP
 \fB--gtagsconf\fP \fIfile\fP
-Load user's configuration from \fIfile\fP.
+Set the \fBGTAGSCONF\fP environment variable to \fIfile\fP.
 .TP
 \fB--gtagslabel\fP \fIlabel\fP
-\fIlabel\fP is used as the label of configuration file.
-The default is default.
+Set the \fBGTAGSLABEL\fP environment variable to \fIlabel\fP.
 .TP
 \fB-I\fP, \fB--idutils\fP
-Make index files for \fBidutils\fP(1) too.
+Also make the ID database file for \fBidutils\fP(1).
 .TP
 \fB-i\fP, \fB--incremental\fP
 Update tag files incrementally. You had better use
 \fBglobal\fP(1) with the -u option.
 .TP
-\fB-n\fP, \fB--max-args\fP \fInumber\fP
-Maximum number of arguments for \fBgtags-parser\fP(1).
-By default, gtags invokes \fBgtags-parser\fP with arguments
-as many as possible to decrease the frequency of invoking.
-.TP
 \fB-O\fP, \fB--objdir\fP
-Use objdir as dbpath.
+Use BSD-style objdir as the location of tag files.
 If \'$MAKEOBJDIRPREFIX\' directory exists, \fBgtags\fP creates
 \'$MAKEOBJDIRPREFIX/<current directory>\' directory and makes
 tag files in it.
@@ -80,7 +75,11 @@ It is considered that \fIfile\fP was updated, and other files were not
 updated.  The \fIfile\fP must be relative path name from the current directory.
 This option implies the -i option.
 If the \fIfile\fP is new then \fB--single-update\fP is ignored,
-and the processing is automatically switched to the normal incremental updating.
+and the processing is automatically switched to normal incremental updating.
+.TP
+\fB--statistics\fP
+Print statistics information.
+This option is valid only for normal creation of tag files.
 .TP
 \fB-q\fP, \fB--quiet\fP
 Quiet mode.
@@ -94,8 +93,6 @@ Print warning messages.
 \fIdbpath\fP
 The directory in which tag files are generated.
 The default is the current directory.
-It is useful when your source directory is on a read only
-device like CDROM.
 .SH EXAMPLES
 .nf
 	$ ls -F
@@ -112,51 +109,39 @@ Tag file for object definitions.
 \'GRTAGS\'
 Tag file for object references.
 .TP
-\'GSYMS\'
-Tag file for other symbols.
-.TP
 \'GPATH\'
 Tag file for path of source files.
 .TP
-\'/etc/gtags.conf\', \'$HOME/.globalrc\'
+\'$HOME/.globalrc\', \'/etc/gtags.conf\', \'[sysconfdir]/gtags.conf\'
 Configuration file.
+.TP
+\'gtags.files\'
+The list of candidates of target files.
 .SH ENVIRONMENT
 The following environment variables affect the execution of \fBgtags\fP:
 .TP
+\fBTMPDIR\fP
+The location used to stored temporary files. The default is \'/tmp\'.
+.TP
 \fBGTAGSCONF\fP
-If this variable is set, its value is used as the
-configuration file. The default is \'$HOME/.globalrc\'.
+Configuration file. The default is \'$HOME/.globalrc\'.
 .TP
 \fBGTAGSLABEL\fP
-If this variable is set, its value is used as the label
-of configuration file. The default is default.
+Configuration label. The default is \fIdefault\fP.
 .TP
 \fBGTAGSCACHE\fP
-If this variable is set, its value is used as the size of
-B-tree cache. The default is 50000000 (bytes).
+The size of B-tree cache. The default is 50000000 (bytes).
 .TP
 \fBGTAGSFORCECPP\fP
 If this variable is set, each file whose suffix is 'h' is treated
 as a C++ source file.
 .TP
 \fBMAKEOBJDIRPREFIX\fP
-If this variable is set, \'$MAKEOBJDIRPREFIX\' is used as an object
-prefix directory. The default is \'/usr/obj\'.
+If this variable is set, \'$MAKEOBJDIRPREFIX\' is used as the prefix
+of BSD-style objdir. The default is \'/usr/obj\'.
 .SH CONFIGURATION
 The following configuration variables affect the execution of \fBgtags\fP.
 You can see the default value for each variable with the \fB--config\fP option.
-.TP
-GTAGS(string)
-If this variable is set, its value is used as the
-command line of the parser for GTAGS. The default is \'gtags-parser %s\'.
-.TP
-GRTAGS(string)
-If this variable is set, its value is used as the
-command line of the parser for GRTAGS. The default is \'gtags-parser -r %s\'.
-.TP
-GSYMS(string)
-If this variable is set, its value is used as the
-command line of the parser for GSYMS. The default is \'gtags-parser -s %s\'.
 .TP
 icase_path(boolean)
 Ignore case distinctions in the path.
@@ -165,27 +150,24 @@ Suffixes check are affected by this capability.
 langmap(comma separated list)
 Language mapping. Each comma-separated map consists of
 the language name, a colon, and a list of file extensions.
+As a special exception, \fBgtags\fP collect values from multiple langmap variables.
 Default mapping is 'c:.c.h,yacc:.y,asm:.s.S,java:.java,cpp:.c++.cc.cpp.cxx.hxx.hpp.C.H,php:.php.php3.phtml'.
+.TP
+gtags_parser(comma separated list)
+Specify the mapping of funtion layer plugin parser.
+Each part delimited by the comma consists of the language name, a colon,
+the shared object path, an optional colon followed by a function name.
+If the function name is not specified, 'parser' is assumed.
+As a special exception, \fBgtags\fP collect values from multiple gtags_parser variables.
 .TP
 skip(comma separated list)
 \fBGtags\fP skips files which are listed in this list.
 As a special exception, \fBgtags\fP collect values from multiple skip variables.
 If the value ends with '/', it assumed as a directory and \fBgtags\fP skips all files under it.
 If the value start with '/', it assumed relative path from the root of source directory.
-.TP
-suffixes(comma separated list)
-Suffixes of target source file.
-As a special exception, \fBgtags\fP collect values from multiple suffixes variables.
-This variable is obsoleted. If the langmap variable is defined
-\fBgtags\fP no longer refers this.
 .SH DIAGNOSTICS
 \fBGtags\fP exits with a non 0 value if an error occurred, 0 otherwise.
-.SH "MESSAGE FORMAT"
-Verbose message has important level. The most important level is 0,
-the second is 1 and so on. All the message has level numbers leading
-blanks.
 .SH "SEE ALSO"
-\fBgtags-parser\fP(1),
 \fBglobal\fP(1),
 \fBhtags\fP(1).
 .PP
@@ -193,7 +175,7 @@ GNU GLOBAL source code tag system
 .br
 (http://www.gnu.org/software/global/).
 .SH BUG
-\'GTAGS\', \'GRTAGS\' and \'GSYMS\' are very large.
+\'GTAGS\' and \'GRTAGS\' are very large.
 In advance of using this command, check the space of your disk.
 .PP
 Assembly support is far from complete.
@@ -202,6 +184,6 @@ Probably valid only for FreeBSD and Linux kernel source.
 .PP
 There is no concurrency control about tag files.
 .SH AUTHOR
-Tama Communications Corporation.
+Shigio YAMAGUCHI, Hideki IWAMOTO and others.
 .SH HISTORY
 The \fBgtags\fP command appeared in FreeBSD 2.2.2.

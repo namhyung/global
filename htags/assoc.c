@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Tama Communications Corporation
+ * Copyright (c) 2004, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -29,58 +29,22 @@
 #include "assoc.h"
 
 /*
- * Associate array using dbop.
- * You must specify a character for each array.
- *
- *	ASSOC *a = assoc_open('a');
- *	ASSOC *b = assoc_open('b');
- *
- * This is for internal use.
- *
- * [Why we don't use invisible db file for associate array?]
- *
- * Dbopen() with NULL path name creates invisible db file. It is useful
- * for many applications but I didn't use it because:
- *
- * 1. Temporary db file might grow up to hundreds of mega bytes or more.
- *    If the file is invisible, the administrator of the machine cannot
- *    understand why file system is full though there is no large file.
- *    We shouldn't make invisible, huge temporary db file.
- * 2. It is difficult for us to debug programs using unnamed, invisible
- *    temporary db file.
- */
-/*
- * get temporary file name.
- *
- *      i)      uniq    unique character
- *      r)              temporary file name
- */
-static const char *
-get_tmpfile(int uniq)
-{
-        static char path[MAXPATHLEN];
-        int pid = getpid();
-
-        snprintf(path, sizeof(path), "%s/htag%c%d", tmpdir, uniq, pid);
-        return path;
-}
-
-/*
  * assoc_open: open associate array.
  *
- *	i)	c	id
  *	r)		descriptor
  */
 ASSOC *
-assoc_open(int c)
+assoc_open()
 {
 	ASSOC *assoc = (ASSOC *)check_malloc(sizeof(ASSOC));
-	const char *tmpfile = get_tmpfile(c);
 
-	assoc->dbop = dbop_open(tmpfile, 1, 0600, DBOP_REMOVE);
-
+	/*
+	 * Use invisible temporary file.
+	 */
+	assoc->dbop = dbop_open(NULL, 1, 0600, 0);
 	if (assoc->dbop == NULL)
 		abort();
+	assoc->dbop->put_errmsg = "cannot write to temporary file.\nYou can specify the directory for the temporary file using environment variable 'TMPDIR'.";
 	return assoc;
 }
 /*
@@ -111,6 +75,21 @@ assoc_put(ASSOC *assoc, const char *name, const char *value)
 	if (assoc->dbop == NULL)
 		abort();
 	dbop_put(assoc->dbop, name, value);
+}
+/*
+ * assoc_put_withlen: put data into associate array.
+ *
+ *	i)	assoc	descriptor
+ *	i)	name	name
+ *	i)	value	value
+ *	i)	len	length
+ */
+void
+assoc_put_withlen(ASSOC *assoc, const char *name, const char *value, int len)
+{
+	if (assoc->dbop == NULL)
+		abort();
+	dbop_put_withlen(assoc->dbop, name, value, len);
 }
 /*
  * assoc_get: get data from associate array.

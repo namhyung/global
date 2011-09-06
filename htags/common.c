@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004, 2005, 2008 Tama Communications Corporation
+ * Copyright (c) 2004, 2005, 2008, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -95,8 +95,12 @@ const char *reserved_begin	= "<b>";
 const char *reserved_end	= "</b>";
 const char *position_begin	= "<font color='gray'>";
 const char *position_end	= "</font>";
-const char *warned_line_begin	= "<span style='background-color:yellow'>";
-const char *warned_line_end	= "</span>";
+const char *warned_line_begin	= "<font color='red'>";
+const char *warned_line_end	= "</font>";
+const char *current_line_begin	= "";
+const char *current_line_end	= "";
+const char *current_row_begin	= "<tr>";
+const char *current_row_end	= "</tr>";
 const char *error_begin		= "<h1><font color='#cc0000'>";
 const char *error_end		= "</font></h1>";
 const char *message_begin	= "<h3>";
@@ -112,6 +116,16 @@ const char *br			= "<br>";
 const char *empty_element	= "";
 const char *noframes_begin	= "<noframes>";
 const char *noframes_end	= "</noframes>";
+
+/* jquery tag */
+const char *tree_control	= "<div id='control'>All <a href='#'>close</a> | <a href='#'>open</a></div>";
+const char *tree_begin		= "<ul id='tree'>";
+const char *tree_begin_using	= "<ul id='tree' class='%s'>";
+const char *tree_end		= "</ul>";
+const char *dir_begin		= "<li><span class='folder'></span>";
+const char *dir_end		= "";
+const char *file_begin		= "<li><span class='file'>";
+const char *file_end		= "</span></li>";
 
 /*
  * 1: Enforce XHTML1.0 strict or XHTML1.1.
@@ -189,6 +203,10 @@ setup_xhtml(void)
 	position_end		= "</em>";
 	warned_line_begin	= "<em class='warned'>";
 	warned_line_end		= "</em>";
+	current_line_begin	= "<span class='curline'>";
+	current_line_end	= "</span>";
+	current_row_begin	= "<tr class='curline'>";
+	current_row_end		= "</tr>";
 	error_begin		= "<h2 class='error'>";
 	error_end		= "</h2>";
 	message_begin		= "<h3 class='message'>";
@@ -208,9 +226,10 @@ setup_xhtml(void)
 /*
  * These methods is used to tell lex() the current path infomation.
  */
-static char current_path[MAXPATHLEN+1];
-static char current_dir[MAXPATHLEN+1];
-static char current_file[MAXPATHLEN+1];
+static char current_path[MAXPATHLEN];
+static char current_dir[MAXPATHLEN];
+static char current_file[MAXPATHLEN];
+
 /*
  * save path infomation
  */
@@ -337,13 +356,26 @@ gen_insert_footer(int place)
  *			TOPDIR: this page is in the top directory
  *	i)	use_frameset
  *			use frameset document type or not
+ *	i)	header_item
+ *			item which should be inserted into the header
  */
 static const char *
-gen_page_generic_begin(const char *title, int place, int use_frameset)
+gen_page_generic_begin(const char *title, int place, int use_frameset, const char *header_item)
 {
 	STATIC_STRBUF(sb);
-	const char *dir = (place == SUBDIR) ? "../" : "";
+	const char *dir = NULL;
 
+	switch (place) {
+	case TOPDIR:
+		dir = "";
+		break;
+	case SUBDIR:
+		 dir = "../";
+		break;
+	case CGIDIR:
+		 dir = "$basedir/";	/* decided by the CGI script */
+		break;
+	}
 	strbuf_clear(sb);
 	if (enable_xhtml) {
 		/*
@@ -380,6 +412,10 @@ gen_page_generic_begin(const char *title, int place, int use_frameset)
 		strbuf_sprintf(sb, "<meta http-equiv='Content-Style-Type' content='text/css'%s>\n", empty_element);
 		strbuf_sprintf(sb, "<link rel='stylesheet' type='text/css' href='%sstyle.css'%s>\n", dir, empty_element);
 	}
+	if (header_item)
+		strbuf_puts(sb, header_item);		/* internal use */
+	if (html_header)
+		strbuf_puts(sb, html_header);		/* --html-header=file */
 	strbuf_puts(sb, html_head_end);
 	return strbuf_value(sb);
 }
@@ -393,7 +429,18 @@ gen_page_generic_begin(const char *title, int place, int use_frameset)
 const char *
 gen_page_begin(const char *title, int place)
 {
-	return gen_page_generic_begin(title, place, 0);
+	return gen_page_generic_begin(title, place, 0, NULL);
+}
+/*
+ * beginning of normal page for index page
+ *
+ *	i)	title	title of this page
+ *	i)	header_item	an item which should be inserted into the header
+ */
+const char *
+gen_page_index_begin(const char *title, const char *header_item)
+{
+	return gen_page_generic_begin(title, TOPDIR, 0, header_item);
 }
 /*
  * Generate beginning of frameset page
@@ -403,7 +450,7 @@ gen_page_begin(const char *title, int place)
 const char *
 gen_page_frameset_begin(const char *title)
 {
-	return gen_page_generic_begin(title, TOPDIR, 1);
+	return gen_page_generic_begin(title, TOPDIR, 1, NULL);
 }
 /*
  * Generate end of page
@@ -592,13 +639,14 @@ gen_list_begin(void)
 /*
  * Generate list body.
  *
- * s must be choped.
+ * ctags_x with the --encode-path=" \t"
  */
 const char *
-gen_list_body(const char *srcdir, const char *ctags_x)		/* virtually const */
+gen_list_body(const char *srcdir, const char *ctags_x, const char *fid)	/* virtually const */
 {
 	STATIC_STRBUF(sb);
-	const char *p, *filename, *fid;
+	char path[MAXPATHLEN];
+	const char *p;
 	SPLIT ptable;
 
 	strbuf_clear(sb);
@@ -606,25 +654,26 @@ gen_list_body(const char *srcdir, const char *ctags_x)		/* virtually const */
 		recover(&ptable);
 		die("too small number of parts in list_body().\n'%s'", ctags_x);
 	}
-	filename = ptable.part[PART_PATH].start + 2;	/* remove './' */
-	fid = path2fid(filename);
+	strlimcpy(path, decode_path((unsigned char *)ptable.part[PART_PATH].start + 2), sizeof(path));
+	if (fid == NULL)
+		fid = path2fid(path);
 	if (table_list) {
+		strbuf_puts(sb, current_row_begin);
 		if (enable_xhtml) {
-			strbuf_puts(sb, "<tr><td class='tag'>");
+			strbuf_puts(sb, "<td class='tag'>");
 			strbuf_puts(sb, gen_href_begin(srcdir, fid, HTML, ptable.part[PART_LNO].start));
 			strbuf_puts(sb, ptable.part[PART_TAG].start);
 			strbuf_puts(sb, gen_href_end());
 			strbuf_sprintf(sb, "</td><td class='line'>%s</td><td class='file'>%s</td><td class='code'>",
-				ptable.part[PART_LNO].start, filename);
+				ptable.part[PART_LNO].start, path);
 		} else {
-			strbuf_puts(sb, "<tr><td nowrap>");
+			strbuf_puts(sb, "<td nowrap>");
 			strbuf_puts(sb, gen_href_begin(srcdir, fid, HTML, ptable.part[PART_LNO].start));
 			strbuf_puts(sb, ptable.part[PART_TAG].start);
 			strbuf_puts(sb, gen_href_end());
 			strbuf_sprintf(sb, "</td><td nowrap align='right'>%s</td><td nowrap align='left'>%s</td><td nowrap>",
-				ptable.part[PART_LNO].start, filename);
+				ptable.part[PART_LNO].start, path);
 		}
-
 		for (p = ptable.part[PART_LINE].start; *p; p++) {
 			unsigned char c = *p;
 
@@ -642,25 +691,27 @@ gen_list_body(const char *srcdir, const char *ctags_x)		/* virtually const */
 			} else
 				strbuf_putc(sb, c);
 		}
-		strbuf_puts(sb, "</td></tr>");
+		strbuf_puts(sb, "</td>");
+		strbuf_puts(sb, current_row_end);
 		recover(&ptable);
 	} else {
-		int done = 0;
-
+		/* print tag name with anchor */
+		strbuf_puts(sb, current_line_begin);
 		strbuf_puts(sb, gen_href_begin(srcdir, fid, HTML, ptable.part[PART_LNO].start));
 		strbuf_puts(sb, ptable.part[PART_TAG].start);
 		strbuf_puts(sb, gen_href_end());
-		p = ctags_x + strlen(ptable.part[PART_TAG].start);
 		recover(&ptable);
 
-		for (; *p; p++) {
+		/* print line number */
+		for (p = ptable.part[PART_TAG].end; p < ptable.part[PART_PATH].start; p++)
+			strbuf_putc(sb, *p);
+		/* print file name */
+		strbuf_puts(sb, path);
+		/* print the rest */
+		for (p = ptable.part[PART_PATH].end; *p; p++) {
 			unsigned char c = *p;
 
-			/* ignore "./" in path name */
-			if (!done && c == '.' && *(p + 1) == '/') {
-				p++;
-				done = 1;
-			} else if (c == '&')
+			if (c == '&')
 				strbuf_puts(sb, quote_amp);
 			else if (c == '<')
 				strbuf_puts(sb, quote_little);
@@ -669,6 +720,7 @@ gen_list_body(const char *srcdir, const char *ctags_x)		/* virtually const */
 			else
 				strbuf_putc(sb, c);
 		}
+		strbuf_puts(sb, current_line_end);
 	}
 	return strbuf_value(sb);
 }
@@ -776,7 +828,7 @@ gen_input_with_title_checked(const char *name, const char *value, const char *ty
 	if (type)
 		strbuf_sprintf(sb, " type='%s'", type);
 	if (name)
-		strbuf_sprintf(sb, " name='%s'", name);
+		strbuf_sprintf(sb, " name='%s' id='%s'", name, name);
 	if (value)
 		strbuf_sprintf(sb, " value='%s'", value);
 	if (checked) {

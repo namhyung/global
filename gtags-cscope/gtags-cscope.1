@@ -7,12 +7,15 @@ gtags\-cscope - pseudo cscope which implements the line-oriented interface
 .br
 .SH DESCRIPTION
 \fBGtags-cscope\fP is a pseudo cscope which implements the
-line-oriented interface.
+line-oriented interface of \fBcscope\fP(1).
 You can use this command for various clients instead of true cscope.
 .PP
 Since \fBgtags-cscope\fP is intended to make GLOBAL available
 through cscope interface, the output is not necessarily the same
 as cscope.
+.PP
+Command 2 is not available.
+This command is used as a internal command for context search.
 .SH OPTIONS
 The following options are available:
 .TP
@@ -30,8 +33,7 @@ Verbose mode.
 	>> help
 	0<arg>: Find this C symbol
 	1<arg>: Find this definition
-	2<arg>: Find functions called by this function
-		(Not implemented yet.)
+	2<arg>: <NA>(This command is used by gtags-cscope.vim internally)
 	3<arg>: Find functions calling this function
 	4<arg>: Find this text string
 	6<arg>: Find this egrep pattern
@@ -59,7 +61,6 @@ Verbose mode.
 \fBGtags-cscope\fP exits with a non 0 value if an error occurred, 0 otherwise.
 .SH "SEE ALSO"
 \fBcscope\fP(1),
-\fBgtags-parser\fP(1),
 \fBgtags\fP(1),
 \fBglobal\fP(1),
 \fBhtags\fP(1).
@@ -72,6 +73,6 @@ The second field of the output is almost <unknown> since
 GLOBAL doesn't recognize it.
 Command 2 (Find functions called by this function) is not implemented.
 .SH AUTHOR
-Tama Communications Corporation.
+Shigio YAMAGUCHI.
 .SH HISTORY
 The \fBgtags-cscope\fP command appeared in 2006.

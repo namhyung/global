@@ -12,7 +12,7 @@
 #
 noinst_LIBRARIES = libgloglibc.a
 
-noinst_HEADERS = regex.h getopt.h obstack.h hash-string.h
+noinst_HEADERS = regex.h getopt.h obstack.h hash-string.h getopt_int.h
 
 libgloglibc_a_SOURCES = regex.c getopt.c getopt1.c snprintf.c obstack.c \
 		hash-string.c

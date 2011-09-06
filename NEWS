@@ -4,7 +4,8 @@ ___________________________________
 |  |   |  |  |  |  |     |     |  |
 |  ~~  |   ~~|     |  ~  |  |  |   ~~|          for all hackers.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+	2010
 	Tama Communications Corporation
 
  This file is free software; as a special exception the author gives
@@ -19,6 +20,266 @@ ___________________________________
 
 GNU GLOBAL NEWS - User visible changes.
 At least, you had better search '[INCOMPATIBLE CHANGES]' for each version.
+
+Version 5.9.3 - December 6 2010
+
+[CHANGES]
+New facilities:
+o global: New optional files arguments for the -g command.
+o global: New -V(--invert-match) option for the -g command.
+o global: New --print0 option.
+o global: New --file-list=file option.
+o htags: New --html-header option.
+o gtags.vim: Activate input completion also on the prompt 'Gtags for pattern:'.
+
+[FIXED BUGS]
+o global: --from-here option didn't locate definitions in the GTAGSLIBPATH.
+o global: Under Cygwin environment, global blocks for a few seconds if there is no GTAGS.
+o htags: Htags with the -g and -d option didn't work correctly.
+
+[INCOMPATIBLE CHANGES]
+o GLOBAL's commands locates gtags.conf also in the sysconfdir.
+  You can see the path using the following command line:
+
+	$ gtags --config=sysconfdir
+
+  Suggested by Jean-Marc Bourguet.
+
+Version 5.9.2 - August 30 2010
+
+[CHANGES]
+New facilities:
+o gtags.vim: Added -m(--vim) option to the show command.
+             Added new use command.
+
+[INCOMPATIBLE CHANGES]
+o Renamed the -S(--secure-cgi) option to --system-cgi. This is because
+  the parameter of the --secure-cgi was changed in GLOBAL-5.9.1.
+o The site key directory for the --system-cgi option was moved from
+  datadir(/usr/local/share) to localstatedir(/usr/local/var) because
+  datadir should be used for read-only data.
+  By default, you must execute "cd HTML; sh bless.sh" as a root user,
+  since the site key directory can not be written except for root user.
+
+Version 5.9.1 - July 19 2010
+
+[CHANGES]
+New facilities:
+o gtags: New gtags.files file.
+
+  If a file called 'gtags.files' exists in the current directory,
+  gtags(1) treats it as a list of files which are candidates of the target.
+  The following two brings a same result.
+  
+  $ gtags -f files
+  $ gtags -i -f files
+  
+  $ cp files gtags.files
+  $ gtags
+  $ gtags -i
+
+The latter has an advantage that 'global -u' can use the mechanism too.
+
+o htags: New --auto-completion option.
+  Enables completion input method for the search form (requires http server).
+o htags: New --tree-view option.
+  Use tree view for the file index.
+o htags: New --suggest2 option
+  --suggest - use popular options without frame, CGI and javascript.
+  --suggest2 - use frame, CGI and javascript in addition to the --suggest.
+
+The --auto-completion and --tree-view option requires javascript language
+in your browser.  If your browser is one of the followings, it will work.
+
+        * GNOME web browser
+        * firefox
+        * chrome
+
+o global: Allows -I option for the -c command.
+
+[FIXED BUGS]
+o gtags.el: The following commands fail with a message 'Beginning of buffer'
+  when the cursor is at the head of the buffer.
+        gtags-find-tag, gtags-find-rtag, gtags-find-symbol,
+        gtags-find-tag-from-here, gtags-find-with-idutils, gtags-find-with-grep
+
+[INCOMPATIBLE CHANGES]
+o Safe-CGI mechanism was modified.
+  The parameter of the -S option was changed.
+
+Version 5.9 - June 8 2010
+
+			*** Caution ***
+
+This version of GLOBAL doesn't support tag files of the former version.
+If you install this version, you should remake all tag files again using
+gtags(1) in this package. Though new gtags's speed has improved very much,
+you need not hurry up to upgrade it if you have a lot of tag files of
+former version. Thank you for your cooperation.
+
+[CHANGES]
+New facilities:
+o global: New --encode-path option.
+  This option is to support path names which includes blanks.
+o globash: New command.
+o global: Accept the -r and -s option at the same time.
+o gtags, global, htags: Allows path name which includes blanks.
+  This is experimental operation. You can use this function by setting
+  environment variable 'GTAGSALLOWBLANK'. Please try and send us bug reports.
+o gtags: Speed-up using 'sorted writing'.
+  It uses external POSIX sort program (/usr/bin/sort). If your system's path
+  is different from /usr/bin/sort, you will see the following message:
+
+    Warning: POSIX sort program not found. If available, the program will be speed up.
+
+  In that case, please rebuild GLOBAL with the --with-posix-sort option.
+
+    $ ./configure --with-posix-sort=<path of POXIS sort program in your system>
+
+[FIXED BUGS]
+o gtags-cscope: When using gtags-cscope with the -C argument to ignore case,
+  it passes malformed arguments to global which prevents it from looking
+  up the definition points of the requested identifier.
+o global: The -I command with the --result option fails.
+
+[INCOMPATIBLE CHANGES]
+o GLOBAL shifted to new architecture and new tag files. GLOBAL doesn't use
+  GSYMS tag file any longer. New GLOBAL doesn't support older tag files.
+  When you use older tag files, you will see the following message:
+
+	global: /*/GTAGS seems older format. Please remake tag files.
+
+o Removed undermentioned config variables:
+
+Removed config variable         replacement
+-------------------------------------------------------------------------
+definition_header(position)     -h, --func-header[=position]
+disable_grep                    --disable-grep
+dynamic                         -D, --dynamic
+full_path                       --full-path
+no_map_file                     --no-map-file
+other_files                     -o, --other
+show_position                   --show-position
+table_flist                     -T, --table-flist[=rows]
+flist_fields(number)            -T, --table-flist[=rows]
+enable_idutils                  --disable-idutils (*1)
+table_list                      --table-list
+suffixes			langmap
+-------------------------------------------------------------------------
+  *1 Please note that '--disable-idutils' is opposite to 'enable_idutils'.
+
+If you use above removed variables in your configuration file, please
+use config variable 'htags_options' instead.
+
+For example:
+:definition_header=before:full_path:other_files:table_flist:flist_fields#3:disable_grep:\
+        |
+        v
+:htags_options=--func-header=before --full-path --other --table-flist=3 --disable-grep:\
+
+Version 5.8.2 - April 1 2010
+
+[CHANGES]
+o gtags, htags: Changed the algorithm for detecting binary file.
+  If the first 512 bytes contain any character of 0-7, 14-26,28-31,
+  the file is basically considered to be a binary. New method can correctly
+  treat multi-byte text file too. This is suggested by Erik Jonsson.
+o global: Changed the -i option to be effective with the -c command.
+
+[INCOMPATIBLE CHANGES]
+o gtags: the built-in parser in function layer has become the default.
+  Config parameter 'use_builtin_parser' is not used any longer.
+o htags: Changed the default output from HTML to XHTML.
+  In older htags,
+        no option: HTML
+        --xhtml: XHTML
+  In new htags,
+        no option: XHTML
+        --xhtml: XHTML
+        --html(new option): HTML
+
+Version 5.8.1 - March 6 2010
+
+[CHANGES]
+New facilities:
+o gtags: Added support of function layer plug-in parser by Hideki IWAMOTO.
+  This includes exuberant-ctags shared library, an example of plug-in
+  parser using Exuberant ctags. To use this, please try the following:
+  (It assumed that Exuberant ctags exists in "/usr/local/bin".)
+        $ ./configure --with-exuberant-ctags=/usr/local/bin/ctags
+        $ make
+        $ sudo make install
+        $ gtags --gtagsconf=/usr/local/share/gtags/gtags.conf --gtagslabel=plugin-example
+  Please see plugin-example/README for the detail.
+o htags: Added call-tree facility using cflow(1).
+  Please try this:
+        $ gtags
+        $ cflow --tree --format=posix `global -P` >cflow.out
+        $ htags --cflow=cflow.out
+  Input file must be POSIX format(use the --format=posix).
+  GNU cflow is available at: http://www.gnu.org/software/cflow/
+
+[FIXED BUGS]
+gtags-parser: Input of long token(>= 512bytes) brings buffer overflow.
+
+[INCOMPATIBLE CHANGES]
+gtags: Gtags using function layer plug-in parser always makes all tag files
+even if some of them are empty. Old style command layer plug-in parser makes
+only specified tag files. The new specification is better than old one for the
+reason that tag files of different parsers don't mix.
+If you want to know whether a tag file is empty or not, please use the following
+commands:
+        $ global '.*' -r                # GRTAGS is empty?
+        $ global '.*' -s                # GSYMS is empty?
+
+Version 5.8 - February 5 2010
+
+[CHANGES]
+New facilities:
+o gtags: Built-in parser by Hideki IWAMOTO.
+  This improvement has shortened the processing time to about 1/3.
+  Built-in parser is not effective by default in this version.
+  To use built-in parser, please define 'use_builtin_parser' in your
+  configuration file like follows:
+
+	$ cp /usr/local/share/gtags/gtags.conf $HOME/.globalrc
+	$ vi $HOME/.globalrc
+	+------------------------------------
+	|...
+	|default:\
+	|       :tc=gtags:tc=htags:use_builtin_parser:	<= ADD THIS
+
+  In the near future, built-in parser will become effective by default.
+o gtags.el: Single 'GTAGS SELECT MODE' buffer of gtags.el by Yushi Oka.
+  If "gtags-select-buffer-single" is non-nil, then 'GTAGS SELECT MODE'
+  buffer is kept single.
+o gtags-cscope.vim: Plug-in script which integrates GLOBAL and vim editor
+  using cscope interface. Since this script makes vim think GLOBAL is cscope,
+  you can use the tag stack facility of vim like cscope. Gtags-cscope can
+  coexist with gtags.vim.
+
+[FIXED BUGS]
+o gtags.el: the completion read in the gtags-find-file fails into endless
+  loop when the input string is NULL.
+
+[INCOMPATIBLE CHANGES]
+o gtags(built-in parser): In the existing parser (gtags-parser), some symbols
+  were stored in both GRTAGS and GSYMS. In the built-in parser, all the symbols
+  defined in GTAGS have been moved from GSYMS to GRTAGS. New specification
+  is more consistent, and useful for efficiency improvement. If you feel this
+  a problem, please inform bug mailing list of your insistence.
+
+Version 5.7.7 - December 19 2009
+
+[CHANGES]
+o htags: More accurate statistics mechanism using gettimeofday(2) and getrusage(2).
+o gtags: New --statistics option.
+o gtags.el: Added completion support for the 'gtags-find-file'.
+o global: Allows tag files in the system's root directory.
+  This does not recommend tag files to be put on the system's root directory.
+  In some systems except UNIX, putting tag files there might be suitable.
+[FIXED BUGS]
+o The --from-here option didn't work with compact format GTAGS (gtags -c).
 
 Version 5.7.6 - October 6 2009
 

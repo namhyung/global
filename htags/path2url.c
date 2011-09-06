@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004 Tama Communications Corporation
+ * Copyright (c) 2004, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -48,7 +48,7 @@ load_gpath(const char *dbpath)
 	const char *path;
 	int n;
 
-	assoc = assoc_open('a');
+	assoc = assoc_open();
 	nextkey = 0;
 	dbop = dbop_open(makepath(dbpath, dbname(GPATH), NULL), 0, 0, 0);
 	if (dbop == NULL)
@@ -100,4 +100,22 @@ path2fid(const char *path)
 		p = number;
 	}
 	return p;
+}
+/*
+ * path2fid_readonly: convert the path name into the file id.
+ *
+ *	i)	path	path name
+ *	r)		id
+ */
+const char *
+path2fid_readonly(const char *path)
+{
+	if (strlen(path) > MAXPATHLEN)
+		die("path name too long. '%s'", path);
+	/*
+	 * accept both aaa and ./aaa.
+	 */
+	if (*path == '.' && *(path + 1) == '/')
+		path += 2;
+	return assoc_get(assoc, path);
 }

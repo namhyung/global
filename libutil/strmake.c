@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 1999, 2000, 2004, 2006
+ * Copyright (c) 1998, 1999, 2000, 2004, 2006, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -145,4 +145,25 @@ strcmp_withterm(const char *s1, const char *s2, int term)
 	} while (c1 == c2 && c1 != '\0');
 
 	return c1 - c2;
+}
+/*
+ * strcpy with terminate character.
+ *
+ *	i)	b	buffer
+ *	i)	s	string
+ *	i)	size	buffer size
+ *	i)	term	terminate character
+ *	r)		terminator's position
+ */
+const char *
+strcpy_withterm(char *b, const char *s, int size, int term)
+{
+	char *endp = b + size - 1;
+
+	while (*s && *s != term)
+		if (b < endp)
+			*b++ = *s++;
+	*b = '\0';
+
+	return s;
 }

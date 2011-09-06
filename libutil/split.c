@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002 Tama Communications Corporation
+ * Copyright (c) 2002, 2010 Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
  *
@@ -22,6 +22,7 @@
 #endif
 #include <stdio.h>
 #include "split.h"
+#include "die.h"
 
 /*
  * Substring manager like perl's split.
@@ -88,9 +89,9 @@
  *	r)		part count
  */
 int
-split(char *line, int npart, SPLIT *list)
+split(const char *line, int npart, SPLIT *list)		/* virtually const */
 {
-	char *s = line;
+	char *s = (char *)line;
 	struct part *part = &list->part[0];
 	int count;
 
@@ -154,4 +155,72 @@ split_dump(SPLIT *list)
 		fprintf(stderr, "string[%d]: |%s|\n", i, part->start);
 		fprintf(stderr, "savec[%d] : |%c|\n", i, part->savec);
 	}
+}
+/*
+ * parse_xid: extract fid from ctags_xid format record.
+ *
+ *	i)	ctags_xid	ctags-xid record
+ *	o)	s_fid		file id(string) if not NULL
+ *	o)	n_fid		file id(integer) if not NULL
+ *	r)			pointer to the ctags_x part
+ */
+const char *
+parse_xid(const char *ctags_xid, char *s_fid, int *n_fid)
+{
+	const char *p;
+	int i, n;
+
+	i = n = 0;
+	for (p = ctags_xid; *p && *p >= '0' && *p <= '9'; p++) {
+		n = n * 10 + (*p - '0');
+		if (s_fid)
+			s_fid[i++] = *p;
+	}
+	if (*p++ != ' ')
+		die("illegal ctags-xid format record. '%s'", ctags_xid);
+	if (s_fid)
+		s_fid[i] = '\0';
+	if (n_fid != NULL)
+		*n_fid = n;
+	return p;
+}
+/*
+ * nextstring: seek to the next string.
+ *
+ *      i)      s       original string
+ *      r)              next string
+ *
+ *  s       v
+ * "aaaaaa\0bbbbb\0"
+ */
+const char *
+nextstring(const char *s)
+{
+	while (*s)
+		s++;
+	return s + 1;
+}
+/*
+ * nextelement: seek to the next element
+ *
+ *	i)	s	point the current element or the following blanks
+ *	r)		next element
+ *
+ *	s     s   return value
+ *	v     v   v
+ *	xxxxx     yyyyy    zzzzzz
+ *	(current) (next)
+ */
+const char *
+nextelement(const char *s)
+{
+	while (*s && !isblank(*s))
+		s++;
+	if (!*s)
+		die("nextelement: unexpected end of string(1).");
+	while (*s && isblank(*s))
+		s++;
+	if (!*s)
+		die("nextelement: unexpected end of string(2).");
+	return s;
 }

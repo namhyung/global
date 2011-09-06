@@ -23,6 +23,7 @@
 
 #include "gparam.h"
 #include "abs2rel.h"
+#include "args.h"
 #include "char.h"
 #include "checkalloc.h"
 #include "compress.h"
@@ -48,6 +49,7 @@
 #include "pathconvert.h"
 #include "pool.h"
 #include "split.h"
+#include "statistics.h"
 #include "strbuf.h"
 #include "strhash.h"
 #include "strlimcpy.h"

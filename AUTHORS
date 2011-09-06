@@ -9,7 +9,7 @@ Copyright holder of GNU GLOBAL
 ==============================
 
 Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
-	2006, 2007, 2008, 2009
+	2006, 2007, 2008, 2009, 2010
 	Tama Communications Corporation. All rights reserved.
 
 Contributors of GNU GLOBAL
@@ -28,6 +28,9 @@ Port to DJGPP by Jason Hood.
 
 Improved peekc() in libutil/token.c by Chris Nogradi and Garmin Inc.
 
+Single 'GTAGS SELECT MODE' buffer of gtags.el by Yushi Oka.
+(defcustom gtags-select-buffer-single)
+
 The following improvements by Hideki IWAMOTO.
 * INCLUDED FROM index of htags.
 * CVS REPOSITORY link of htags.
@@ -42,6 +45,13 @@ The following improvements by Hideki IWAMOTO.
 * Essential part of internal sort filter (replacement of gnusort).
 * Performance improvement of idset module by using "unsigned long" instead of
   "unsigned int" for bitmask. This is necessary to use 64 bit processor effectively.
+* More accurate statistics mechanism for htags(1) and gtags(1)(--statistics).
+* Built-in parser in gtags(1). This work includes the following two optimizations:
+  - Giant Steps
+  - 1pass-parsing
+  These have shortened the processing time of gtags(1) to about 1/3.
+* Adding support of function layer plug-in parser for gtags(1). This work includes
+  exuberant-ctags.la, an exsample of plug-in parser (exuberant-ctags.c).
 Besides he has contributed many improvements to GLOBAL.
 
 There are also many others who have contributed patches and fixes.
@@ -118,5 +128,17 @@ o Icon files by GNOME Foundation.
 	icons/n_left.png	stock_left_arrow.png
 	icons/n_right.png	stock_right_arrow.png
 	icons/n_top.png		stock_top.png
+
+o jQuery, Suggest plugin and TreeView plugin
+  jQuery is due to John Resig and the Dojo Foundation.
+  Suggest plugin is due to Peter Vulgaris, Joern Zaefferer and Stefan Petre.
+  TreeView plugin is due to Joern Zaefferer.
+
+	jquery/jquery.js
+	jquery/jquery.suggest.js
+	jquery/jquery.suggest.css
+	jquery/jquery.treeview.js
+	jquery/jquery.treeview.css
+	jquery/images/*.gif
 
 they are considered a separate package, not part of GLOBAL proper.

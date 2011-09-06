@@ -1,5 +1,5 @@
 #
-# Copyright (c) 1998, 1999, 2000, 2001, 2002, 2003
+# Copyright (c) 1998, 1999, 2000, 2001, 2002, 2003, 2010
 #	Tama Communications Corporation
 #
 # This file is part of GNU GLOBAL.
@@ -34,39 +34,35 @@ default:\
 # See gtags(1).
 #---------------------------------------------------------------------
 common:\
-	:skip=@DEFAULTSKIP@:\
-	:langmap=@DEFAULTLANGMAP_QUOTED@:
-#
-# [gtags-parser]
-#
-# This command is distributed as part of GLOBAL.
-# The %s is replaced with the path of source file.
-# You need not use --langmap=xxx option. Gtags-parser(1) get the value
-# from environment variable.
-#
+	:skip=@DEFAULTSKIP@:
 gtags:\
 	:tc=common:\
-	:GTAGS=gtags-parser %s:\
-	:GRTAGS=gtags-parser -r %s:\
-	:GSYMS=gtags-parser -s %s:
+	:langmap=@DEFAULTLANGMAP_QUOTED@:
 #
-# [Exuberant Ctags]
+# plugin parser
 #
-# This ctags is distributed as a part of Vim editor.
-#
-# [Installation]
-# % cd <Vim source directory>/src/ctags
-# % make
-# # cp ctags /usr/local/bin/ctags-exuberant
-#
-ctags-exuberant|Exuberant Ctags|ctags by Darren Hiebert:\
-	:tc=common:\
-	:suffixes=s,a,sa,asm,C,H,cpp,cxx,hxx,hpp,cc,c,h,y:\
-	:extractmethod:\
-	:GTAGS=/usr/local/bin/ctags-exuberant -xu %s | perl -ne '\
-		if (/^operator \\S+\\s+function\\s/) { s/^operator //; }\
-		($name, $type, $no, $path, $line) = split(/[ \\t]+/, $_, 5);\
-		printf(STDOUT "%-16s %4d %-16s %s", $name, $no, $path, $line);':
+plugin-example|Example of function layer plugin parser:\
+	:tc=common:extractmethod:\
+	:langmap=@DEFAULTLANGMAP_QUOTED@:\
+	:langmap=fortran\:.f.for.f77.f90.f95,pascal\:.p.pas,c#\:.cs,lisp\:.l.el.lisp,scheme\:.scm:\
+	:langmap=awk\:.awk,ruby\:.rb,perl\:.pl,python\:.py,vim\:.vim,sh\:.sh:\
+	:gtags_parser=c\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=yacc\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=asm\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=java\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=cpp\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=php\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=fortran\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=pascal\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=c#\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=lisp\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=scheme\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=awk\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=ruby\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=perl\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=python\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=vim\:@prefix@/lib/gtags/exuberant-ctags.la:\
+	:gtags_parser=sh\:@prefix@/lib/gtags/exuberant-ctags.la:
 #---------------------------------------------------------------------
 # Configuration for htags(1)
 # Let's paint hypertext with your favorite colors!

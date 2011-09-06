@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 1999, 2000, 2001, 2002, 2005
+ * Copyright (c) 1998, 1999, 2000, 2001, 2002, 2005, 2010
  *	Tama Communications Corporation
  *
  * This file is part of GNU GLOBAL.
@@ -223,6 +223,8 @@ configpath(void)
 		strbuf_puts(sb, DEBIANCONF);
 	else if (test("r", OLD_DEBIANCONF))
 		strbuf_puts(sb, OLD_DEBIANCONF);
+	else if (test("r", makepath(SYSCONFDIR, "gtags.conf", NULL)))
+		strbuf_puts(sb, makepath(SYSCONFDIR, "gtags.conf", NULL));
 	else
 		return NULL;
 	return strbuf_value(sb);
@@ -286,7 +288,7 @@ openconf(void)
 		fclose(fp);
 	}
 	/*
-	 * make up lacked variables.
+	 * make up required variables.
 	 */
 	sb = strbuf_open(0);
 	strbuf_puts(sb, confline);
@@ -297,7 +299,7 @@ openconf(void)
 		const char *langmap = NULL;
 
 		/*
-		 * Variable 'suffixes' is obsoleted. But it is generated
+		 * Variable 'suffixes' is obsolete. But it is generated
 		 * internally from the value of variable 'langmap'.
 		 */
 		if (getconfs("langmap", tmp))
@@ -311,36 +313,6 @@ openconf(void)
 	if (!getconfs("skip", NULL)) {
 		strbuf_puts(sb, ":skip=");
 		strbuf_puts(sb, DEFAULTSKIP);
-	}
-	/*
-	 * GTAGS, GRTAGS and GSYMS have no default values but non of them
-	 * specified then use default values.
-	 * (Otherwise, nothing to do for gtags.)
-	 */
-	if (!getconfs("GTAGS", NULL) && !getconfs("GRTAGS", NULL) && !getconfs("GSYMS", NULL)) {
-		const char *path;
-
-		/*
-		 * usable search in BINDIR at first.
-		 */
-#if defined(_WIN32)
-		path = "gtags-parser.exe";
-#elif defined(__DJGPP__)
-		path = usable("gtags-parser") ? "gtags-parser.exe" : "gtags-~1.exe";
-#else
-		path = usable("gtags-parser");
-		if (!path)
-			path = "gtags-parser";
-#endif /* _WIN32 */
-		strbuf_puts(sb, ":GTAGS=");
-		strbuf_puts(sb, path);
-		strbuf_puts(sb, " %s");
-		strbuf_puts(sb, ":GRTAGS=");
-		strbuf_puts(sb, path);
-		strbuf_puts(sb, " -r %s");
-		strbuf_puts(sb, ":GSYMS=");
-		strbuf_puts(sb, path);
-		strbuf_puts(sb, " -s %s");
 	}
 	strbuf_unputc(sb, ':');
 	strbuf_putc(sb, ':');
@@ -360,7 +332,7 @@ int
 getconfn(const char *name, int *num)
 {
 	const char *p;
-	char buf[MAXPROPLEN+1];
+	char buf[MAXPROPLEN];
 
 	if (!opened)
 		openconf();
@@ -384,13 +356,14 @@ int
 getconfs(const char *name, STRBUF *sb)
 {
 	const char *p;
-	char buf[MAXPROPLEN+1];
+	char buf[MAXPROPLEN];
 	int all = 0;
 	int exist = 0;
 
 	if (!opened)
 		openconf();
-	if (!strcmp(name, "suffixes") || !strcmp(name, "skip"))
+	if (!strcmp(name, "suffixes") || !strcmp(name, "skip")
+	 || !strcmp(name, "gtags_parser") || !strcmp(name, "langmap"))
 		all = 1;
 	snprintf(buf, sizeof(buf), ":%s=", name);
 	p = confline;
@@ -416,7 +389,28 @@ getconfs(const char *name, STRBUF *sb)
 			strbuf_puts(sb, BINDIR);
 			exist = 1;
 		} else if (!strcmp(name, "datadir")) {
+#if defined(_WIN32) && !defined(__CYGWIN__)
+			/*
+			 * Test if this directory exists, and if not, take the
+			 * directory relative to the binary.
+			 */
+			if (test("d", DATADIR))
+				strbuf_puts(sb, DATADIR);
+			else {
+				const char *name = strrchr(_pgmptr, '\\');
+				if (name)
+					strbuf_nputs(sb, _pgmptr, name+1 - _pgmptr);
+				strbuf_puts(sb, "..\\share");
+			}
+#else
 			strbuf_puts(sb, DATADIR);
+#endif
+			exist = 1;
+		} else if (!strcmp(name, "localstatedir")) {
+			strbuf_puts(sb, LOCALSTATEDIR);
+			exist = 1;
+		} else if (!strcmp(name, "sysconfdir")) {
+			strbuf_puts(sb, SYSCONFDIR);
 			exist = 1;
 		}
 	}
@@ -431,7 +425,7 @@ getconfs(const char *name, STRBUF *sb)
 int
 getconfb(const char *name)
 {
-	char buf[MAXPROPLEN+1];
+	char buf[MAXPROPLEN];
 
 	if (!opened)
 		openconf();
