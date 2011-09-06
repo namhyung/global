@@ -37,7 +37,7 @@
 
 static void C_family(const struct parser_param *, int);
 static void process_attribute(const struct parser_param *);
-static int function_definition(const struct parser_param *, char *);
+static int function_definition(const struct parser_param *, char *, int);
 static void condition_macro(const struct parser_param *, int);
 
 #define IS_TYPE_QUALIFIER(c)	((c) == C_CONST || (c) == C_RESTRICT || (c) == C_VOLATILE)
@@ -79,6 +79,28 @@ C(const struct parser_param *param)
 {
 	C_family(param, TYPE_C);
 }
+static int
+kernel_keyword(const char *tok)
+{
+	if (!strcmp(tok, "__user") ||
+	    !strcmp(tok, "__iomem") ||
+	    !strcmp(tok, "__percpu") ||
+	    !strcmp(tok, "__rcu") ||
+	    !strcmp(tok, "__initdata") ||
+	    !strcmp(tok, "__initconst") ||
+	    !strcmp(tok, "__meminitdata") ||
+	    !strcmp(tok, "__devinitdata") ||
+	    !strcmp(tok, "__devinitconst") ||
+	    !strcmp(tok, "__devexitdata") ||
+	    !strcmp(tok, "__devexitconst") ||
+	    !strcmp(tok, "__read_mostly") ||
+	    !strcmp(tok, "__aligned") || /* FIXME! */
+	    !strcmp(tok, "__cacheline_aligned") ||
+	    !strcmp(tok, "__cacheline_aligned_in_smp")) {
+		return 1;
+	}
+	return 0;
+}
 /*
  *	i)	file	source file
  *	i)	type	TYPE_C, TYPE_YACC, TYPE_LEX
@@ -103,6 +125,8 @@ C_family(const struct parser_param *param, int type)
 	 */
 	int yaccstatus = (type == TYPE_YACC) ? DECLARATIONS : PROGRAMS;
 	int inC = (type == TYPE_YACC) ? 0 : 1;	/* 1 while C source */
+	int initializer = 0;
+	int extdecl = 0; /* extern declaration */
 
 	level = piflevel = externclevel = 0;
 	savelevel = -1;
@@ -124,14 +148,15 @@ C_family(const struct parser_param *param, int type)
 				} else if (level > 0 || startmacro) {
 					PUT(PARSER_REF_SYM, token, lineno, sp);
 				} else if (level == 0 && !startmacro && !startsharp) {
-					char arg1[MAXTOKEN], savetok[MAXTOKEN], *saveline;
+					char arg[MAXTOKEN], savetok[MAXTOKEN], *saveline;
 					int savelineno = lineno;
+					int which_arg = 1;
 
 					strlimcpy(savetok, token, sizeof(savetok));
 					strbuf_reset(sb);
 					strbuf_puts(sb, sp);
 					saveline = strbuf_value(sb);
-					arg1[0] = '\0';
+					arg[0] = '\0';
 					/*
 					 * Guile function entry using guile-snarf is like follows:
 					 *
@@ -146,15 +171,102 @@ C_family(const struct parser_param *param, int type)
 					 *
 					 * We should assume the first argument as a function name instead of 'SCM_DEFINE'.
 					 */
-					if (function_definition(param, arg1)) {
-						if (!strcmp(savetok, "SCM_DEFINE") && *arg1)
-							strlimcpy(savetok, arg1, sizeof(savetok));
+					if (!strncmp(savetok, "DEFINE_PER_CPU", 14))
+						which_arg = 2;
+					if (function_definition(param, arg, which_arg)) {
+						if (!strcmp(savetok, "SCM_DEFINE") && *arg)
+							strlimcpy(savetok, arg, sizeof(savetok));
+						/* for Linux kernel */
+						if (!strncmp(savetok, "SYSCALL_DEFINE", 14) && *arg) {
+							strlimcpy(savetok, "sys_", 5);
+							strlimcpy(savetok+4, arg, sizeof(savetok)-4);
+						}
 						PUT(PARSER_DEF, savetok, savelineno, saveline);
 					} else {
-						PUT(PARSER_REF_SYM, savetok, savelineno, saveline);
+						/* for Linux kernel */
+						if (*arg && (!strcmp(savetok, "DEFINE_SPINLOCK") ||
+							     !strcmp(savetok, "DEFINE_RWLOCK") ||
+							     !strcmp(savetok, "DEFINE_MUTEX") ||
+							     !strcmp(savetok, "DECLARE_WORK") ||
+							     !strcmp(savetok, "DECLARE_WAIT_QUEUE_HEAD") ||
+							     !strcmp(savetok, "LIST_HEAD") ||
+							     !strcmp(savetok, "HLIST_HEAD"))) {
+							PUT(PARSER_DEF, arg, savelineno, saveline);
+						} else if (!strncmp(savetok, "DEFINE_PER_CPU", 14) && *arg) {
+							/* we want 'name' in DEFINE_PER_CPU(type, name) */
+							message("saving percpu symbol: %s(%s).", savetok, arg);
+							PUT(PARSER_DEF, arg, savelineno, saveline);
+						} else {
+							PUT(PARSER_REF_SYM, savetok, savelineno, saveline);
+						}
 					}
+					initializer = 0;
 				}
 			} else {
+				/* for global variable definitions */
+				if (inC && level == 0 && !startmacro && !startsharp && !extdecl) {
+					char savetok[MAXTOKEN], *saveline;
+					int savelineno;
+
+				reset_and_scan:
+					strlimcpy(savetok, token, sizeof(savetok));
+					strbuf_reset(sb);
+					strbuf_puts(sb, sp);
+					saveline = strbuf_value(sb);
+					savelineno = lineno;
+				rescan:
+					c = peekc(0);
+					if (c == '=') {
+						initializer = 1;
+						PUT(PARSER_DEF, savetok, savelineno, saveline);
+						break;
+					} else if (c == ';' || c == ',') {
+						if (!initializer) {
+							PUT(PARSER_DEF, savetok, savelineno, saveline);
+							break;
+						}
+						initializer = 0;
+					} else if (c == '[') {
+						int alevel = 0;
+
+						while ((c = nexttoken("[]", c_reserved_word)) != EOF) {
+							if (c == '[') {
+								alevel++;
+							} else if (c == ']') {
+								if (--alevel == 0)
+									goto rescan;
+							} else if (c == SYMBOL) {
+								PUT(PARSER_REF_SYM, token, lineno, sp);
+							}
+						}
+					} else if (isalpha(c) || c == '_') {
+						/*
+						 * some kernel variables declared as follows:
+						 *   int __initdata xxx;
+						 *   int yyy __read_mostly = 1;
+						 */
+						c = nexttoken(interested, c_reserved_word);
+						message("complicated symbol: %s %s.", savetok, token);
+
+						if (c != SYMBOL) {
+							pushbacktoken();
+							PUT(PARSER_REF_SYM, savetok, savelineno, saveline);
+							break;
+						}
+						if (kernel_keyword(token)) {
+							goto rescan;
+						} else if (kernel_keyword(savetok)) {
+							goto reset_and_scan;
+						} else {
+							pushbacktoken();
+						}
+					} else if (c == '(') {
+						pushbacktoken();
+						break;
+					}
+					PUT(PARSER_REF_SYM, savetok, savelineno, saveline);
+					break;
+				}
 				PUT(PARSER_REF_SYM, token, lineno, sp);
 			}
 			break;
@@ -279,10 +391,12 @@ C_family(const struct parser_param *param, int type)
 			(void)nexttoken(interested, c_reserved_word);
 			break;
 		case C_EXTERN: /* for 'extern "C"/"C++"' */
+			extdecl = 1;
 			if (peekc(0) != '"') /* " */
 				continue; /* If does not start with '"', continue. */
 			while ((c = nexttoken(interested, c_reserved_word)) == '\n')
 				;
+			extdecl = 0;
 			/*
 			 * 'extern "C"/"C++"' block is a kind of namespace block.
 			 * (It doesn't have any influence on level.)
@@ -485,6 +599,11 @@ C_family(const struct parser_param *param, int type)
 		default:
 			break;
 		}
+
+		if (c == ';' || cc == ';')
+			initializer = extdecl = 0;
+		if (c == ',' || cc == ',')
+			initializer = 0;
 	}
 	strbuf_close(sb);
 	if (param->flags & PARSER_WARNING) {
@@ -522,18 +641,19 @@ process_attribute(const struct parser_param *param)
 /*
  * function_definition: return if function definition or not.
  *
- *	o)	arg1	the first argument
+ *	o)	arg     argument string
+ *	i)	which	argument number
  *	r)	target type
  */
 static int
-function_definition(const struct parser_param *param, char arg1[MAXTOKEN])
+function_definition(const struct parser_param *param, char arg[MAXTOKEN], int which)
 {
 	int c;
 	int brace_level, isdefine;
-	int accept_arg1 = 0;
+	int arg_num = 1;
 
 	brace_level = isdefine = 0;
-	while ((c = nexttoken("()", c_reserved_word)) != EOF) {
+	while ((c = nexttoken("(),", c_reserved_word)) != EOF) {
 		switch (c) {
 		case SHARP_IFDEF:
 		case SHARP_IFNDEF:
@@ -551,12 +671,13 @@ function_definition(const struct parser_param *param, char arg1[MAXTOKEN])
 		else if (c == /* ( */')') {
 			if (--brace_level == 0)
 				break;
+		} else if (c == ',') {
+			arg_num++;
 		}
 		/* pick up symbol */
 		if (c == SYMBOL) {
-			if (accept_arg1 == 0) {
-				accept_arg1 = 1;
-				strlimcpy(arg1, token, MAXTOKEN);
+			if (arg_num == which) {
+				strlimcpy(arg, token, MAXTOKEN);
 			}
 			PUT(PARSER_REF_SYM, token, lineno, sp);
 		}
@@ -587,7 +708,9 @@ function_definition(const struct parser_param *param, char arg1[MAXTOKEN])
 		else if (brace_level == 0
 		    && ((c == SYMBOL && strcmp(token, "__THROW")) || IS_RESERVED_WORD(c)))
 			isdefine = 1;
-		else if (c == ';' || c == ',') {
+		else if (c == ';') /* Isn't it OK? */
+			break;
+		else if (c == ',') {
 			if (!isdefine)
 				break;
 		} else if (c == '{' /* } */) {
