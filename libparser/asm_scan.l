@@ -83,7 +83,7 @@ ALPHA		[a-zA-Z_\x80-\xff]
 ALPHANUM	[a-zA-Z_\x80-\xff0-9]
 WORD		{ALPHA}{ALPHANUM}*
 
-%x C_COMMENT CPP_COMMENT STRING LITERAL
+%x C_COMMENT CPP_COMMENT GAS_COMMENT STRING LITERAL
 %s PREPROCESSOR_LINE
 
 %option 8bit yylineno stack noyywrap noyy_top_state never-interactive prefix="asm_"
@@ -111,6 +111,14 @@ WORD		{ALPHA}{ALPHANUM}*
  /* C++ style line comment */
 "//"		{ yy_push_state(CPP_COMMENT); }
 <CPP_COMMENT>{
+	(\\.|[^\\\n])+
+	\\\n
+	\n		{ yy_pop_state(); unput('\n'); }
+}
+
+ /* gas style line comment */
+"@"		{ yy_push_state(GAS_COMMENT); }
+<GAS_COMMENT>{
 	(\\.|[^\\\n])+
 	\\\n
 	\n		{ yy_pop_state(); unput('\n'); }
