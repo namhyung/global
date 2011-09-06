@@ -138,6 +138,11 @@ line:	ASM_ENTRY '(' ASM_SYMBOL ')' error '\n'
 			PUT(PARSER_DEF, GET_SYM($1), @1);
 			strbuf_reset(asm_symtable);
 		}
+	| ASM_LABEL ':' error '\n'
+		{
+			PUT(PARSER_DEF, GET_SYM($1), @1);
+			strbuf_reset(asm_symtable);
+		}
 	| error '\n'
 		{ strbuf_reset(asm_symtable); }
 ;
