@@ -209,7 +209,8 @@ static const struct lang_entry lang_switch[] = {
 	{"cpp",		Cpp},
 	{"java",	java},
 	{"php",		php},
-	{"asm",		assembly}
+	{"asm",		assembly},
+	{"kconfig",	kconfig},
 };
 #define DEFAULT_ENTRY &lang_switch[0]
 /*
@@ -323,9 +324,16 @@ parse_file(const char *path, int flags, PARSER_CALLBACK put, void *arg)
 	suffix = locatestring(path, ".", MATCH_LAST);
 	if (suffix == NULL)
 		return;
+
 	lang = decide_lang(suffix);
-	if (lang == NULL)
-		return;
+	if (lang == NULL) {
+		suffix = locatestring(path, "Kconfig", MATCH_AT_LAST);
+		if (suffix == NULL)
+			return;
+		lang = decide_lang(suffix);
+		if (lang == NULL)
+			return;
+	}
 	if (flags & PARSER_VERBOSE)
 		fprintf(stderr, "suffix '%s' assumed language '%s'.\n", suffix, lang);
 	/*

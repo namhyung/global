@@ -42,6 +42,7 @@ void Cpp(const struct parser_param *);
 void java(const struct parser_param *);
 void php(const struct parser_param *);
 void assembly(const struct parser_param *);
+void kconfig(const struct parser_param *);
 
 void dbg_print(int, const char *);
 
