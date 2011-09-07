@@ -53,7 +53,7 @@ libgloparser_a_AR = $(AR) $(ARFLAGS)
 libgloparser_a_LIBADD =
 am_libgloparser_a_OBJECTS = parser.$(OBJEXT) C.$(OBJEXT) Cpp.$(OBJEXT) \
 	asm_parse.$(OBJEXT) asm_scan.$(OBJEXT) java.$(OBJEXT) \
-	php.$(OBJEXT)
+	php.$(OBJEXT) Kconfig.$(OBJEXT)
 libgloparser_a_OBJECTS = $(am_libgloparser_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -146,6 +146,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
@@ -228,7 +229,9 @@ noinst_LIBRARIES = libgloparser.a
 noinst_HEADERS = parser.h internal.h asm_parse.h \
 		c_res.h cpp_res.h java_res.h php_res.h asm_res.h asm_parse.h
 
-libgloparser_a_SOURCES = parser.c C.c Cpp.c asm_parse.c asm_scan.c java.c php.c
+libgloparser_a_SOURCES = parser.c C.c Cpp.c asm_parse.c asm_scan.c java.c php.c \
+		Kconfig.c
+
 libgloparser_a_DEPENDENCIES = $(libgloparser_a_LIBADD)
 EXTRA_DIST = reserved.pl HACKING \
 		c_res.in c_res.gpf \
@@ -287,6 +290,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cpp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Kconfig.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/asm_scan.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/java.Po@am__quote@

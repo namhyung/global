@@ -195,7 +195,7 @@ extern FILE *asm_in, *asm_out;
      *       One obvious solution it to make yy_act a global. I tried that, and saw
      *       a 5% performance hit in a non-asm_lineno scanner, because yy_act is
      *       normally declared as a register variable-- so it is not worth it.
- */
+     */
     #define  YY_LESS_LINENO(n) \
             do { \
                 int yyl;\
@@ -817,7 +817,7 @@ extern int asm_wrap (void );
 #endif
 
     static void yyunput (int c,char *buf_ptr  );
-
+    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -839,11 +839,11 @@ static int input (void );
         static int yy_start_stack_ptr = 0;
         static int yy_start_stack_depth = 0;
         static int *yy_start_stack = NULL;
-
+    
     static void yy_push_state (int new_state );
     
     static void yy_pop_state (void );
-
+    
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
 #ifdef __ia64__
@@ -954,7 +954,7 @@ YY_DECL
 	register yy_state_type yy_current_state;
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
-
+    
 #line 91 "asm_scan.l"
 
 
@@ -1343,7 +1343,7 @@ case YY_STATE_EOF(GAS_COMMENT):
 case YY_STATE_EOF(STRING):
 case YY_STATE_EOF(LITERAL):
 case YY_STATE_EOF(PREPROCESSOR_LINE):
-				yyterminate();
+	yyterminate();
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1528,7 +1528,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-		int num_to_read =
+			int num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1620,7 +1620,7 @@ static int yy_get_next_buffer (void)
 {
 	register yy_state_type yy_current_state;
 	register char *yy_cp;
-
+    
 	yy_current_state = (yy_start);
 	yy_current_state += YY_AT_BOL();
 
@@ -1675,7 +1675,7 @@ static int yy_get_next_buffer (void)
     static void yyunput (int c, register char * yy_bp )
 {
 	register char *yy_cp;
-
+    
     yy_cp = (yy_c_buf_p);
 
 	/* undo effects of setting up asm_text */
@@ -1706,7 +1706,7 @@ static int yy_get_next_buffer (void)
 
     if ( c == '\n' ){
         --asm_lineno;
-	}
+    }
 
 	(yytext_ptr) = yy_bp;
 	(yy_hold_char) = *yy_cp;
@@ -1722,7 +1722,7 @@ static int yy_get_next_buffer (void)
 
 {
 	int c;
-
+    
 	*(yy_c_buf_p) = (yy_hold_char);
 
 	if ( *(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR )
@@ -1785,7 +1785,7 @@ static int yy_get_next_buffer (void)
 
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = (c == '\n');
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_at_bol )
-
+		   
     asm_lineno++;
 ;
 
@@ -1800,7 +1800,7 @@ static int yy_get_next_buffer (void)
  */
     void asm_restart  (FILE * input_file )
 {
-
+    
 	if ( ! YY_CURRENT_BUFFER ){
         asm_ensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
@@ -1863,7 +1863,7 @@ static void asm__load_buffer_state  (void)
     YY_BUFFER_STATE asm__create_buffer  (FILE * file, int  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	b = (YY_BUFFER_STATE) asm_alloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in asm__create_buffer()" );
@@ -1890,7 +1890,7 @@ static void asm__load_buffer_state  (void)
  */
     void asm__delete_buffer (YY_BUFFER_STATE  b )
 {
-
+    
 	if ( ! b )
 		return;
 
@@ -1911,7 +1911,7 @@ static void asm__load_buffer_state  (void)
 
 {
 	int oerrno = errno;
-
+    
 	asm__flush_buffer(b );
 
 	b->yy_input_file = file;
@@ -1924,10 +1924,10 @@ static void asm__load_buffer_state  (void)
     if (b != YY_CURRENT_BUFFER){
         b->yy_bs_lineno = 1;
         b->yy_bs_column = 0;
-	}
+    }
 
         b->yy_is_interactive = 0;
-
+    
 	errno = oerrno;
 }
 
@@ -1937,7 +1937,7 @@ static void asm__load_buffer_state  (void)
  */
     void asm__flush_buffer (YY_BUFFER_STATE  b )
 {
-	if ( ! b )
+    	if ( ! b )
 		return;
 
 	b->yy_n_chars = 0;
@@ -1973,7 +1973,7 @@ void asm_push_buffer_state (YY_BUFFER_STATE new_buffer )
 
 	/* This block is copied from asm__switch_to_buffer. */
 	if ( YY_CURRENT_BUFFER )
-	{
+		{
 		/* Flush out information for old buffer. */
 		*(yy_c_buf_p) = (yy_hold_char);
 		YY_CURRENT_BUFFER_LVALUE->yy_buf_pos = (yy_c_buf_p);
@@ -2065,7 +2065,7 @@ static void asm_ensure_buffer_stack (void)
 YY_BUFFER_STATE asm__scan_buffer  (char * base, yy_size_t  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	if ( size < 2 ||
 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
 	     base[size-1] != YY_END_OF_BUFFER_CHAR )
@@ -2101,7 +2101,7 @@ YY_BUFFER_STATE asm__scan_buffer  (char * base, yy_size_t  size )
  */
 YY_BUFFER_STATE asm__scan_string (yyconst char * yystr )
 {
-
+    
 	return asm__scan_bytes(yystr,strlen(yystr) );
 }
 
@@ -2118,7 +2118,7 @@ YY_BUFFER_STATE asm__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 	char *buf;
 	yy_size_t n;
 	int i;
-
+    
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
 	buf = (char *) asm_alloc(n  );
@@ -2180,7 +2180,7 @@ YY_BUFFER_STATE asm__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 
 static void yy_fatal_error (yyconst char* msg )
 {
-	(void) fprintf( stderr, "%s\n", msg );
+    	(void) fprintf( stderr, "%s\n", msg );
 	exit( YY_EXIT_FAILURE );
 }
 
@@ -2208,7 +2208,7 @@ static void yy_fatal_error (yyconst char* msg )
  */
 int asm_get_lineno  (void)
 {
-
+        
     return asm_lineno;
 }
 

@@ -2,20 +2,20 @@
 /* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
+   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -28,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -64,14 +64,14 @@
 #define YYLSP_NEEDED 1
 
 /* Substitute the variable and function names.  */
-#define yyparse asm_parse
-#define yylex   asm_lex
-#define yyerror asm_error
-#define yylval  asm_lval
-#define yychar  asm_char
-#define yydebug asm_debug
-#define yynerrs asm_nerrs
-#define yylloc asm_lloc
+#define yyparse         asm_parse
+#define yylex           asm_lex
+#define yyerror         asm_error
+#define yylval          asm_lval
+#define yychar          asm_char
+#define yydebug         asm_debug
+#define yynerrs         asm_nerrs
+#define yylloc          asm_lloc
 
 /* Copy the first part of user declarations.  */
 
@@ -1136,7 +1136,7 @@ yydestruct (yymsg, yytype, yyvaluep, yylocationp, param)
 	break;
     }
 }
-
+
 /* Prevent warnings from -Wmissing-prototypes.  */
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
@@ -1193,37 +1193,37 @@ yyparse (param)
 #endif
 #endif
 {
-  
 
-  int yystate;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
+
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
 
     /* The stacks and their tools:
        `yyss': related to states.
        `yyvs': related to semantic values.
-     `yyls': related to locations.
+       `yyls': related to locations.
 
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
+       Refer to the stacks thru separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
 
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
     yytype_int16 *yyss;
-  yytype_int16 *yyssp;
+    yytype_int16 *yyssp;
 
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
     YYSTYPE *yyvs;
-  YYSTYPE *yyvsp;
+    YYSTYPE *yyvsp;
 
-  /* The location stack.  */
-  YYLTYPE yylsa[YYINITDEPTH];
+    /* The location stack.  */
+    YYLTYPE yylsa[YYINITDEPTH];
     YYLTYPE *yyls;
-  YYLTYPE *yylsp;
+    YYLTYPE *yylsp;
 
-  /* The locations where the error started and ended.  */
-  YYLTYPE yyerror_range[2];
+    /* The locations where the error started and ended.  */
+    YYLTYPE yyerror_range[2];
 
     YYSIZE_T yystacksize;
 
@@ -1260,7 +1260,7 @@ yyparse (param)
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  yychar = YYEMPTY; /* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
@@ -1418,7 +1418,7 @@ yybackup:
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
   /* Discard the shifted token.  */
-    yychar = YYEMPTY;
+  yychar = YYEMPTY;
 
   yystate = yyn;
   *++yyvsp = yylval;
