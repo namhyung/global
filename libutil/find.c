@@ -174,7 +174,7 @@ prepare_source(void)
 			suffp = ++p;
 		}
 		strbuf_puts(sb, ")$");
-		strbuf_puts(sb, "|Kconfig$");
+		strbuf_puts(sb, "|Kconfig.*$");
 		/*
 		 * compile regular expression.
 		 */

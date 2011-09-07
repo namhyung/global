@@ -327,10 +327,11 @@ parse_file(const char *path, int flags, PARSER_CALLBACK put, void *arg)
 
 	lang = decide_lang(suffix);
 	if (lang == NULL) {
-		suffix = locatestring(path, "Kconfig", MATCH_AT_LAST);
-		if (suffix == NULL)
-			return;
-		lang = decide_lang(suffix);
+		suffix = locatestring(path, "Kconfig", MATCH_LAST);
+		if (suffix) {
+			suffix = "Kconfig";	/* normalize Kconfig.XXX file names */
+			lang = decide_lang(suffix);
+		}
 		if (lang == NULL)
 			return;
 	}
