@@ -333,7 +333,7 @@
   (interactive)
   (gtags-find-tag t))
 
-(defun gtags-find-rtag ()
+(defun gtags-find-rtag (&optional other-win)
   "Input tag name and move to the referenced point."
   (interactive)
   (let (tagname prompt input)
@@ -346,7 +346,12 @@
    (if (not (equal "" input))
      (setq tagname input))
     (gtags-push-context)
-    (gtags-goto-tag tagname "r")))
+    (gtags-goto-tag tagname "r" other-win)))
+
+(defun gtags-find-rtag-other-window ()
+  "Input tag name and move to the referenced point in other window."
+  (interactive)
+  (gtags-find-rtag t))
 
 (defun gtags-find-symbol ()
   "Input symbol and move to the locations."
