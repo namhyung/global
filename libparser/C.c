@@ -173,12 +173,15 @@ C_family(const struct parser_param *param, int type)
 					 */
 					if (!strncmp(savetok, "DEFINE_PER_CPU", 14))
 						which_arg = 2;
+					else if (!strncmp(savetok, "DEFINE_EVENT", 12))
+						which_arg = 2;
+
 					if (function_definition(param, arg, which_arg)) {
 						if (!strcmp(savetok, "SCM_DEFINE") && *arg)
 							strlimcpy(savetok, arg, sizeof(savetok));
 						/* for Linux kernel */
 						if (!strncmp(savetok, "SYSCALL_DEFINE", 14) && *arg) {
-							strlimcpy(savetok, "sys_", 5);
+							strlimcpy(savetok, "sys_", sizeof("sys_"));
 							strlimcpy(savetok+4, arg, sizeof(savetok)-4);
 						}
 						PUT(PARSER_DEF, savetok, savelineno, saveline);
@@ -196,6 +199,14 @@ C_family(const struct parser_param *param, int type)
 							/* we want 'name' in DEFINE_PER_CPU(type, name) */
 							message("saving percpu symbol: %s(%s).", savetok, arg);
 							PUT(PARSER_DEF, arg, savelineno, saveline);
+						} else if (!strncmp(savetok, "TRACE_EVENT", 11) && *arg) {
+							strlimcpy(savetok, "trace_", sizeof("trace_"));
+							strlimcpy(savetok+6, arg, sizeof(savetok)-6);
+							PUT(PARSER_DEF, savetok, savelineno, saveline);
+						} else if (!strncmp(savetok, "DEFINE_EVENT", 12) && *arg) {
+							strlimcpy(savetok, "trace_", sizeof("trace_"));
+							strlimcpy(savetok+6, arg, sizeof(savetok)-6);
+							PUT(PARSER_DEF, savetok, savelineno, saveline);
 						} else {
 							PUT(PARSER_REF_SYM, savetok, savelineno, saveline);
 						}
