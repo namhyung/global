@@ -227,7 +227,7 @@ dnl DEFAULTSKIP: You need not list files whoes first character of name is '.'.
 dnl		Such files are skipped even in case of not being in the list.
 dnl
 DEFAULTSKIP='GPATH,GTAGS,GRTAGS,GSYMS,HTML/,HTML.pub/,html/,tags,TAGS,ID,y.tab.c,y.tab.h,cscope.out,cscope.po.out,cscope.in.out,SCCS/,RCS/,CVS/,CVSROOT/,{arch}/,autom4te.cache/'
-DEFAULTLANGMAP='c:.c.h,yacc:.y,asm:.s.S,java:.java,cpp:.c++.cc.cpp.cxx.hxx.hpp.C.H,php:.php.php3.phtml'
+DEFAULTLANGMAP='c:.c.h,yacc:.y,asm:.s.S,java:.java,cpp:.c++.cc.cpp.cxx.hxx.hpp.C.H,php:.php.php3.phtml,kconfig:Kconfig'
 AC_SUBST(DEFAULTSKIP)
 AC_SUBST(DEFAULTLANGMAP)
 
